@@ -23,6 +23,7 @@ top level
 =============
 */
 #define MAX_LEVELS 128
+#define MAX_HISCORES 5
 
 int doInit(Uint32 vidFlags, int doWipe);
 int doKuri2d();

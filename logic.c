@@ -291,16 +291,6 @@ int isStageClear() {
 	return 1;
 }
 
-/**
- * Convinience - move all scores down a place
- */
-static void moveScores(int start) {
-	int i;
-
-	for(i=3; i>start; i--) {
-		memcpy(&hiscores[i+1], &hiscores[i], sizeof(HiScore));
-	}
-}
 
 /**
  * Figure out if the player gets a place in the charts, if they do, add them
@@ -308,12 +298,12 @@ static void moveScores(int start) {
  */
 /*@-mayaliasunique@*/
 int addHiScore(char *name, int score, int level) {
-	int i;
+	int i, j;
 	
-	for(i=0; i<5; i++) {
+	for(i=0; i<MAX_HISCORES; i++) {
 		if(score > hiscores[i].score) {
 			printf("Player got a hi-score! (%s, %i, %i)\n", name, score, level);
-			moveScores(i);
+			for(j=MAX_HISCORES-2; j>i; j--) {memcpy(&hiscores[j+1], &hiscores[j], sizeof(HiScore));}
 			strncpy(hiscores[i].name, name, 8);
 			hiscores[i].score = score;
 			hiscores[i].level = level;
