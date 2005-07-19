@@ -24,6 +24,10 @@ static char *mins[] = {
 	"Q", "restart level",
 	"Esc", "leave game",
 	"P", "toggle pause",
+	" ", " ",
+	" ", "block - trap for points",
+	" ", "bomb  - trap and detonate",
+	" ", "forbidden - don't trap!",
 	NULL
 };
 
@@ -37,15 +41,18 @@ void doMenu() {
 	int half = 640 / 2 - 16;
 	int xo2, minsy = 100, i; /* x offset 2, menu instruction y offset, int */
 	SDL_Event event;
-	SDL_Surface *hitex;
+	SDL_Surface *hitex, *t1, *t2, *t3;
 	char histring[64];
 	
 	drawImage(backgrounds[BG_BACK], 0, 0);
 	drawImage(backgrounds[BG_MENU], 0, 96);
 	for(i=0; mins[i]; i+=2, minsy += 32) {
-		drawImage(TTF_RenderText_Blended(fonts[FONT_MINS], mins[i],   black), 37,  minsy);
-		drawImage(TTF_RenderText_Blended(fonts[FONT_MINS], "-",       black), 105, minsy);
-		drawImage(TTF_RenderText_Blended(fonts[FONT_MINS], mins[i+1], black), 120, minsy);
+		drawImage(t1 = TTF_RenderText_Blended(fonts[FONT_MINS], mins[i],   black), 37,  minsy);
+		drawImage(t2 = TTF_RenderText_Blended(fonts[FONT_MINS], "-",       black), 105, minsy);
+		drawImage(t3 = TTF_RenderText_Blended(fonts[FONT_MINS], mins[i+1], black), 120, minsy);
+		SDL_FreeSurface(t1);
+		SDL_FreeSurface(t2);
+		SDL_FreeSurface(t3);
 	}
 
 	minsy = 180;
@@ -146,7 +153,7 @@ void doGameWon() {
 		refresh();
 		SDL_Delay(1000 / 10);
 
-		if(frame == 10*10) break;
+		if(frame == 100) break;
 	}
 }
 
@@ -161,22 +168,19 @@ void doGameLost() {
 	SDL_Event event;
 	SDL_Surface *hiMsg;
 	char hiText[64];
-	int hiPos = 0;
+	char name[64] = "";
+	int namePos = 0, hiPos = 0, i = 0, needUpdate = 0;
 
 	/* clear the field */
 	doBombs();
 	eatBlocks();
 
+	/* check for hiscore */
+	for(i=0; i<MAX_HISCORES; i++) if(state->score > hiscores[i].score) needUpdate = hiPos = i;
+
+
 	drawImage(backgrounds[BG_BACK], 0, 0);
 	drawImage(backgrounds[BG_LOSE], 32, 192);
-	
-	hiPos = addHiScore(state->name, state->score, state->level);
-	if(hiPos) {
-		sprintf(hiText, "New Hiscore: %i points!", state->score);
-		drawImage(hiMsg = TTF_RenderText_Blended(fonts[FONT_SCORE], hiText,
-					black), 100, 300);
-		SDL_FreeSurface(hiMsg);
-	}
 
 	refresh();
 	SDL_Delay(500);
@@ -189,19 +193,51 @@ void doGameLost() {
 		while (SDL_PollEvent(&event)) {
 			/*@ -usedef @*/
 			if (event.type == SDL_QUIT) {hasQuit = 1;}
-			if (event.type == SDL_KEYDOWN) {
-				switch (event.key.keysym.sym) {
-					case SDLK_ESCAPE: hasQuit = 1; break;
-					default: inGame = 0; break;
+			if (hiPos && event.type == SDL_KEYDOWN) {
+				if(event.key.keysym.sym >= SDLK_a && event.key.keysym.sym <= SDLK_z) {
+					if(namePos < 8) {
+						name[namePos++] = event.key.keysym.sym;
+						name[namePos] = 0;
+						needUpdate = 1;
+					}
+				}
+				else {
+					switch (event.key.keysym.sym) {
+						case SDLK_RETURN:
+							addHiScore(name, state->score, state->level);
+							inGame = 0;
+							break;
+						case SDLK_BACKSPACE:
+							if(namePos > 0) name[--namePos] = 0;
+							needUpdate = 1;
+							break;
+						default:
+							break;
+					}
 				}
 			}
+			else if(event.type == SDL_KEYDOWN) {
+				inGame = 0;
+			}
 			/*@ =usedef @*/
+		}
+		
+		if(needUpdate) {
+			drawImage(backgrounds[BG_BACK], 0, 0);
+			drawImage(backgrounds[BG_LOSE], 32, 192);
+			sprintf(hiText, "New Hiscore: %i points!", state->score);
+			drawImage(hiMsg = TTF_RenderText_Blended(fonts[FONT_SCORE], hiText, black), 100, 300);
+			SDL_FreeSurface(hiMsg);
+			sprintf(hiText, "Enter Name: %s", name);
+			drawImage(hiMsg = TTF_RenderText_Blended(fonts[FONT_SCORE], hiText, black), 100, 332);
+			SDL_FreeSurface(hiMsg);
+			needUpdate = 0;
 		}
 
 		/* FIXME : Bounce some blocks around */
 		refresh();
 		SDL_Delay(1000 / 10);
 
-		if(frame == 10*10) break;
+		if(frame == 100) break;
 	}
 }
