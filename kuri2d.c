@@ -21,15 +21,17 @@
 #include "kuri2d.h"
 
 int main(int argc, char *argv[]) {
-	int editMode = 0, opt, doWipe = 0;
+	int editMode = 0, opt, doWipe = 0, ok = 1;
 	char levelName[32];
 	Uint32 vidFlags = (Uint32)(SDL_HWSURFACE | SDL_DOUBLEBUF);
 
-	printf("Launching Kuri2d %s...\n", VERSION);
+	printf("Kuri2d %s - SDL %i.%i.%i \n", VERSION, SDL_MAJOR_VERSION,
+	       SDL_MINOR_VERSION, SDL_PATCHLEVEL);
+
 	strncpy(levelName, "default", 32);
 
-	while(1) {
-		opt = getopt(argc, argv, "e:fw");
+	while(ok) {
+		opt = getopt(argc, argv, "e:fwhv");
 		if(opt == -1) {break;}
 
 		switch(opt) {
@@ -43,12 +45,25 @@ int main(int argc, char *argv[]) {
 			case 'w':
 				doWipe = 1;
 				break;
+			case 'h':
+				printf("Usage: %s [FLAGS]\n\n", argv[0]);
+				printf("  -e [NAME]   - edit level named NAME\n");
+				printf("  -f          - fullscreen\n");
+				printf("  -w          - wipe highscores\n");
+				printf("  -h          - show this help\n");
+				printf("  -v          - exit after showing version\n\n");
+				ok = 0;
+				break;
+			case 'v':
+				ok = 0;
+				break;
 		}
 	}
+	if(!ok) return(0);
 
 #ifdef __linux__
-	printf("linux mode: cd-ing to /usr/share/games/kuri2d/\n");
-	if(chdir("/usr/share/games/kuri2d/") != 0) {
+	printf("linux mode: cd-ing to /usr/local/share/games/kuri2d/\n");
+	if(chdir("/usr/local/share/games/kuri2d/") != 0) {
 		printf("cd-ing failed - the game will probably complain about missing data files\n");
 	}
 #endif

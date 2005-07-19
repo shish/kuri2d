@@ -32,11 +32,11 @@ clean:
 	rm -f $(OBJECTS)
 
 install:
-	cp kuri2d /usr/games/bin/
-	mkdir /usr/share/games/kuri2d
-	cp -r data /usr/share/games/kuri2d/
+	cp kuri2d /usr/local/games/bin/
+	mkdir /usr/local/share/games/kuri2d
+	cp -r data /usr/local/share/games/kuri2d/
 
 uninstall:
-	rm -f /usr/games/kuri2d
-	rm -rf /usr/share/games/kuri2d/
+	rm -f /usr/local/games/kuri2d
+	rm -rf /usr/local/share/games/kuri2d/
 
