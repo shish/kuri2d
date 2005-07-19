@@ -64,10 +64,12 @@ int doKuri2d() {
 		if (hasLost) {
 			doGameLost();
 			state->level = 0;
+			hasQuit = 0;
 		}
 		else if(hasWon) {
 			doGameWon();
 			state->level++;
+			hasQuit = 0;
 		}
 	}
 
