@@ -62,7 +62,7 @@ int doInit(Uint32 vidFlags, int doWipe) {
 	}
 
 	if(doWipe) {
-		for(i=0; i<5; i++) {
+		for(i=0; i<MAX_HISCORES; i++) {
 			strcpy(hiscores[i].name, "nobody");
 			hiscores[i].score = 0;
 			hiscores[i].level = 0;
@@ -77,11 +77,16 @@ int doInit(Uint32 vidFlags, int doWipe) {
 }
 	
 static int loadHiScores() {
-	int read;
+	int read, i;
 	FILE *hs_fp = fopen("data/hiscores.dat", "rb");
 
 	if(!hs_fp) {
 		printf("Couldn't open data/hiscores.dat for reading\n");
+		for(i=0; i<MAX_HISCORES; i++) {
+			strcpy(hiscores[i].name, "nobody");
+			hiscores[i].score = 0;
+			hiscores[i].level = 0;
+		}
 	}
 	else {
 		read = fread(hiscores, sizeof(hiscores), 1, hs_fp);

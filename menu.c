@@ -25,9 +25,9 @@ static char *mins[] = {
 	"Esc", "leave game",
 	"P", "toggle pause",
 	" ", " ",
-	" ", "block - trap for points",
-	" ", "bomb  - trap and detonate",
-	" ", "forbidden - don't trap!",
+	" ", "block; trap for points",
+	" ", "bomb; trap and detonate",
+	" ", "forbidden; don't trap!",
 	NULL
 };
 
@@ -48,22 +48,18 @@ void doMenu() {
 	drawImage(backgrounds[BG_MENU], 0, 96);
 	for(i=0; mins[i]; i+=2, minsy += 32) {
 		drawImage(t1 = TTF_RenderText_Blended(fonts[FONT_MINS], mins[i],   black), 37,  minsy);
-		drawImage(t2 = TTF_RenderText_Blended(fonts[FONT_MINS], "-",       black), 105, minsy);
-		drawImage(t3 = TTF_RenderText_Blended(fonts[FONT_MINS], mins[i+1], black), 120, minsy);
+		drawImage(t2 = TTF_RenderText_Blended(fonts[FONT_MINS], "-",       black), 110, minsy);
+		drawImage(t3 = TTF_RenderText_Blended(fonts[FONT_MINS], mins[i+1], black), 125, minsy);
 		SDL_FreeSurface(t1);
 		SDL_FreeSurface(t2);
 		SDL_FreeSurface(t3);
 	}
 
 	minsy = 180;
-	for(i=0; i<5; i++, minsy += 32) {
+	for(i=0; i<MAX_HISCORES; i++, minsy += 32) {
 		if(hiscores[i].score > 0) {
-			sprintf(histring, "%s, %i (%i)",
-					hiscores[i].name,
-					hiscores[i].score,
-					hiscores[i].level);
-			drawImage(hitex = TTF_RenderText_Blended(fonts[FONT_HISCORE],
-						histring, black), 400, minsy);
+			sprintf(histring, "%s, %i (%i)", hiscores[i].name, hiscores[i].score, hiscores[i].level);
+			drawImage(hitex = TTF_RenderText_Blended(fonts[FONT_HISCORE], histring, black), 400, minsy);
 			SDL_FreeSurface(hitex);
 		}
 	}
@@ -84,9 +80,16 @@ void doMenu() {
 			if (event.type == SDL_QUIT) {hasQuit = 1;}
 			if (event.type == SDL_KEYDOWN) {
 				switch (event.key.keysym.sym) {
-					case SDLK_ESCAPE: hasQuit = 1; break;
-					case SDLK_d: tmp_dumpHiScores(); break;
-					default: inGame = 0; break;
+					case SDLK_q:
+					case SDLK_ESCAPE:
+						hasQuit = 1;
+						break;
+					case SDLK_d:
+						tmp_dumpHiScores();
+						break;
+					default:
+						inGame = 0;
+						break;
 				}
 			}
 			/*@ =usedef @*/

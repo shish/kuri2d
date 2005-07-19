@@ -28,7 +28,7 @@ SDL_Color    black, white;
 
 HiScore hiscores[MAX_HISCORES];
 SDL_bool inGame = SDL_FALSE, hasWon = SDL_FALSE,
-	hasLost = SDL_FALSE, hasQuit = SDL_FALSE;
+         hasLost = SDL_FALSE, hasQuit = SDL_FALSE;
 State *state, *startState;
 Uint8 px = 3, py = 7;	/* player location */
 KuriLevel levels[MAX_LEVELS];
@@ -51,7 +51,7 @@ int doKuri2d() {
 	while (!hasQuit) {
 		if(state->level == 0) {
 			state->score = 0;
-			state->lives = 3;
+			state->lives = 1;
 			doMenu();
 			state->level++;
 		}
@@ -161,10 +161,10 @@ static void doGame() {
 		}
 
 		if(hasLost) {
+			state->lives--;
 			if(state->lives > 0) {
 				hasLost = 0;
-				memcpy(state, startState, sizeof(State));
-				state->lives--;
+				memcpy(state, startState, sizeof(State)); /* reset game to start of level */
 				initGame();
 			}
 		}
@@ -201,12 +201,6 @@ static void drawField() {
 					ox + (x * 32), oy + (y * 32));
 		}
 	}
-}
-static void drawPlayer() {
-	fillRect(ox + (px * 32), oy + (py * 32), 32, 32, 0xFFFF7700);	/* show player */
-}
-static void drawMarker() {
-	drawImage(blockImages[BT_MARKER], ox+(px*32), oy+(py*32));
 }
 
 /* blocks */
@@ -288,7 +282,7 @@ void drawGame() {
 		drawScores();
 	}
 	drawField();
-	drawPlayer();
+	fillRect(ox + (px * 32), oy + (py * 32), 32, 32, 0xFFFF7700);	/* player */
 	drawBlocks();
 
 	refresh();
@@ -299,7 +293,7 @@ void drawEdit() {
 	if(pauseDone || frame32 - 1 == 0) drawBack();
 	drawField();
 	drawBlocks();
-	drawMarker();
+	drawImage(blockImages[BT_MARKER], ox+(px*32), oy+(py*32));
 	drawEditHelp();
 
 	refresh();
