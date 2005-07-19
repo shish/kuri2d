@@ -47,12 +47,6 @@ int doExit() {
 		}
 	}
 
-	for(i=0; i<MINS_COUNT; i++) {
-		if(mins[i] != NULL) {
-			SDL_FreeSurface(mins[i]);
-		}
-	}
-
 	/*@ -compdestroy -unqualifiedtrans @*/
 	/* splint doesn't pick up FreeWAV as free()ing memory */
 	/* FIXME: Sound 

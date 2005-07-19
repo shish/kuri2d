@@ -28,7 +28,6 @@ static int loadLevels(void);
 static int loadSounds(void);
 static int loadFonts(void);
 static int loadTexts(void);
-static int loadMins(void);
 static int openFrame(Uint32 vidFlags);
 
 int doInit(Uint32 vidFlags, int doWipe) {
@@ -58,7 +57,6 @@ int doInit(Uint32 vidFlags, int doWipe) {
 		loadSounds() &&
 		loadFonts() &&
 		loadTexts() &&
-		loadMins() &&
 		openFrame(vidFlags)) {
 		return 1;
 	}
@@ -257,24 +255,18 @@ static int loadFonts() {
 	return 1;
 }
 
-/**
- * Convinience
- */
-static SDL_Surface *ren(int fontid, char *text, SDL_Color col) {
-	/* printf("Rendering '%s'\n", text); */
-	return TTF_RenderText_Blended(fonts[fontid], text, col);
-}
+#define REN(fontid, text, col) TTF_RenderText_Blended(fonts[fontid], text, col)
 
 static int loadTexts() {
 	int i;
 	
-	texts[TEXT_TITLE]  = ren(FONT_TITLE, "Kuri2d", black);
-	texts[TEXT_SCORE]  = ren(FONT_SCORE, "Score", black);
-	texts[TEXT_TARGET] = ren(FONT_SCORE, "Target", black);
-	texts[TEXT_LIVES]  = ren(FONT_SCORE, "Lives", black);
-	texts[TEXT_LEVEL]  = ren(FONT_SCORE, "Level", black);
-	texts[TEXT_PRESS]  = ren(FONT_SCORE, "Press Any Key To Play", white);
-	texts[TEXT_EDHELP] = ren(FONT_SCORE, "<-edhelp here>", black);
+	texts[TEXT_TITLE]  = REN(FONT_TITLE, "Kuri2d", black);
+	texts[TEXT_SCORE]  = REN(FONT_SCORE, "Score", black);
+	texts[TEXT_TARGET] = REN(FONT_SCORE, "Target", black);
+	texts[TEXT_LIVES]  = REN(FONT_SCORE, "Lives", black);
+	texts[TEXT_LEVEL]  = REN(FONT_SCORE, "Level", black);
+	texts[TEXT_PRESS]  = REN(FONT_SCORE, "Press Any Key To Play", white);
+	texts[TEXT_EDHELP] = REN(FONT_SCORE, "<-edhelp here>", black);
 
 	for(i=0; i<TEXT_PRECOUNT; i++) {
 		if(texts[i] == NULL) {
@@ -285,52 +277,6 @@ static int loadTexts() {
 	return 1;
 }
 
-/**
- * This could be done better, I shal add it to the "things to do better"
- * list...
- */
-static int loadMins() {
-	int i;
-	
-	mins[MINS_MOVE1]   = ren(FONT_MINS, "<^>v", black);
-	mins[MINS_MOVE2]   = ren(FONT_MINS, "-", black);
-	mins[MINS_MOVE3]   = ren(FONT_MINS, "Move", black);
-	mins[MINS_TRAP1]   = ren(FONT_MINS, "T", black);
-	mins[MINS_TRAP2]   = ren(FONT_MINS, "-", black);
-	mins[MINS_TRAP3]   = ren(FONT_MINS, "Trap", black);
-	mins[MINS_BOMBS1]  = ren(FONT_MINS, "B", black);
-	mins[MINS_BOMBS2]  = ren(FONT_MINS, "-", black);
-	mins[MINS_BOMBS3]  = ren(FONT_MINS, "Detonate Bombs", black);
-	mins[MINS_EXIT1]   = ren(FONT_MINS, "Q", black);
-	mins[MINS_EXIT2]   = ren(FONT_MINS, "-", black);
-	mins[MINS_EXIT3]   = ren(FONT_MINS, "Exit", black);
-	mins[MINS_LEAVE1]  = ren(FONT_MINS, "Esc", black);
-	mins[MINS_LEAVE2]  = ren(FONT_MINS, "-", black);
-	mins[MINS_LEAVE3]  = ren(FONT_MINS, "Leave", black);
-	mins[MINS_PAUSE1]  = ren(FONT_MINS, "P", black);
-	mins[MINS_PAUSE2]  = ren(FONT_MINS, "-", black);
-	mins[MINS_PAUSE3]  = ren(FONT_MINS, "Toggle Pause", black);
-	mins[MINS_SPACE1]  = ren(FONT_MINS, " ", black);
-	mins[MINS_SPACE2]  = ren(FONT_MINS, " ", black);
-	mins[MINS_SPACE3]  = ren(FONT_MINS, " ", black);
-	mins[MINS_REGUL1]  = ren(FONT_MINS, " ", black);
-	mins[MINS_REGUL2]  = ren(FONT_MINS, "-", black);
-	mins[MINS_REGUL3]  = ren(FONT_MINS, "Regular, trap for points", black);
-	mins[MINS_BOMB1]   = ren(FONT_MINS, " ", black);
-	mins[MINS_BOMB2]   = ren(FONT_MINS, "-", black);
-	mins[MINS_BOMB3]   = ren(FONT_MINS, "Bomb, Trap and detonate", black);
-	mins[MINS_FORBID1] = ren(FONT_MINS, " ", black);
-	mins[MINS_FORBID2] = ren(FONT_MINS, "-", black);
-	mins[MINS_FORBID3] = ren(FONT_MINS, "Forbidden, Don't trap!", black);
-
-	for(i=0; i<MINS_COUNT; i++) {
-		if(mins[i] == NULL) {
-			printf("Menu / instructions %i failed rendering (%s)\n", i, SDL_GetError());
-			return 0;
-		}
-	}
-	return 1;
-}
 
 /*
 static int loadWav(char *name, soundType slot) {

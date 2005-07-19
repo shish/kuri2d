@@ -22,7 +22,6 @@
 SDL_Surface *backgrounds[BG_COUNT];
 SDL_Surface *blockImages[BT_COUNT];
 SDL_Surface *texts[TEXT_COUNT];
-SDL_Surface *mins[MINS_COUNT];
 BasicSound  *sounds[SND_COUNT];
 TTF_Font	*fonts[FONT_COUNT];
 SDL_Color    black, white;
@@ -49,9 +48,6 @@ static SDL_Surface *getBlockOverlay(blockType type);
  * The main function
  */
 int doKuri2d() {
-	printf("Kuri2d - SDL %i.%i.%i \n", SDL_MAJOR_VERSION,
-	       SDL_MINOR_VERSION, SDL_PATCHLEVEL);
-
 	while (!hasQuit) {
 		if(state->level == 0) {
 			state->score = 0;

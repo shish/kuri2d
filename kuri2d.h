@@ -103,21 +103,6 @@ typedef enum texts {
 	TEXT_COUNT
 } textId;
 
-/* Menu Instructions */
-typedef enum menuins {
-	MINS_MOVE1,   MINS_MOVE2,   MINS_MOVE3,
-	MINS_TRAP1,   MINS_TRAP2,   MINS_TRAP3,
-	MINS_BOMBS1,  MINS_BOMBS2,  MINS_BOMBS3,
-	MINS_EXIT1,   MINS_EXIT2,   MINS_EXIT3,
-	MINS_LEAVE1,  MINS_LEAVE2,  MINS_LEAVE3,
-	MINS_PAUSE1,  MINS_PAUSE2,  MINS_PAUSE3,
-	MINS_SPACE1,  MINS_SPACE2,  MINS_SPACE3,
-	MINS_REGUL1,  MINS_REGUL2,  MINS_REGUL3,
-	MINS_BOMB1,   MINS_BOMB2,   MINS_BOMB3,
-	MINS_FORBID1, MINS_FORBID2, MINS_FORBID3,
-	MINS_COUNT
-} menuInsId;
-
 typedef struct KuriLevel {
 	char  sig[4];
 	Uint8 inited;                  /* whether or not the map is ready */
@@ -148,7 +133,6 @@ main.c
 extern SDL_Surface *backgrounds[BG_COUNT];
 extern SDL_Surface *blockImages[BT_COUNT];
 extern SDL_Surface *texts[TEXT_COUNT];
-extern SDL_Surface *mins[MINS_COUNT];
 extern BasicSound  *sounds[SND_COUNT];
 extern TTF_Font    *fonts[FONT_COUNT];
 

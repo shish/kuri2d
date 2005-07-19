@@ -16,6 +16,17 @@
 
 static void tmp_dumpHiScores(void);
 
+/* Menu Instructions */
+static char *mins[] = {
+	"Arrows", "move",
+	"T", "set / activate trap",
+	"B", "detonate bombs",
+	"Q", "restart level",
+	"Esc", "leave game",
+	"P", "toggle pause",
+	NULL
+};
+
 /**
  * show the "menu" bitmap
  * wait 500ms
@@ -24,17 +35,17 @@ static void tmp_dumpHiScores(void);
  */
 void doMenu() {
 	int half = 640 / 2 - 16;
-	int xo2, minsy = 100, i;
+	int xo2, minsy = 100, i; /* x offset 2, menu instruction y offset, int */
 	SDL_Event event;
 	SDL_Surface *hitex;
 	char histring[64];
 	
 	drawImage(backgrounds[BG_BACK], 0, 0);
 	drawImage(backgrounds[BG_MENU], 0, 96);
-	for(i=0; i<MINS_COUNT; i+=3, minsy += 32) {
-		drawImage(mins[i+0], 37, minsy);
-		drawImage(mins[i+1], 105, minsy);
-		drawImage(mins[i+2], 120, minsy);
+	for(i=0; mins[i]; i+=2, minsy += 32) {
+		drawImage(TTF_RenderText_Blended(fonts[FONT_MINS], mins[i],   black), 37,  minsy);
+		drawImage(TTF_RenderText_Blended(fonts[FONT_MINS], "-",       black), 105, minsy);
+		drawImage(TTF_RenderText_Blended(fonts[FONT_MINS], mins[i+1], black), 120, minsy);
 	}
 
 	minsy = 180;
