@@ -1,6 +1,6 @@
 /**
  * vim:ts=4:sw=4
- * kuri2d.h - (c) Shish 2003 - shishthemoomin@yahoo.com
+ * kuri2d.h - (c) Shish 2003, 2005 - shish@shish.is-a-geek.net
  * global include file
  *
  * This program is free software; you can redistribute it and/or modify
@@ -141,7 +141,7 @@ void drawGame(void);
 void drawEdit(void);
 void setOffsets(void);
 
-extern HiScore    hiscores[5];
+extern HiScore    hiscores[MAX_HISCORES];
 extern State     *state, *startState;
 extern SDL_Color  black, white;
 extern SDL_bool   inGame, hasWon, hasLost, hasQuit;
@@ -175,7 +175,7 @@ void slide(void);
 void setField(void);
 void resetField(void);
 int  isStageClear(void);
-int  addHiScore(char *name, int score, int level);
+void addHiScore(char *name, int score, int level);
 
 /*
 =============

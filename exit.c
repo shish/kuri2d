@@ -1,6 +1,6 @@
 /**
  * vim:ts=4:sw=4
- * exit.c - (c) Shish 2003 - shishthemoomin@yahoo.com
+ * exit.c - (c) Shish 2003, 2005 - shish@shish.is-a-geek.net
  * frees resources and exits
  *
  * This program is free software; you can redistribute it and/or modify

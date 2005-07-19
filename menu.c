@@ -1,6 +1,6 @@
 /**
  * vim:ts=4:sw=4
- * menu.c - (c) Shish 2003 - shishthemoomin@yahoo.com
+ * menu.c - (c) Shish 2003, 2005 - shish@shish.is-a-geek.net
  * an extension of main.c to handle the menu parts
  *
  * This program is free software; you can redistribute it and/or modify
@@ -13,8 +13,6 @@
 #include "SDL.h"
 #include <math.h>
 #include "kuri2d.h"
-
-static void tmp_dumpHiScores(void);
 
 /* Menu Instructions */
 static char *mins[] = {
@@ -84,9 +82,6 @@ void doMenu() {
 					case SDLK_ESCAPE:
 						hasQuit = 1;
 						break;
-					case SDLK_d:
-						tmp_dumpHiScores();
-						break;
 					default:
 						inGame = 0;
 						break;
@@ -106,17 +101,6 @@ void doMenu() {
 	}
 }
 
-static void tmp_dumpHiScores() {
-	int i;
-
-	printf(" Name   : Level : Score\n");
-	for(i=0; i<5; i++) {
-		printf("%8.8s: %5i : %i\n", hiscores[i].name,
-			hiscores[i].level, hiscores[i].score);
-	}
-}
-
-
 /**
  * show the "you win" bitmap
  * wait 500ms
@@ -126,9 +110,7 @@ static void tmp_dumpHiScores() {
 void doGameWon() {
 	SDL_Event event;
 
-	/* clear the field */
-	doBombs();
-	eatBlocks();
+	resetField();
 
 	drawImage(backgrounds[BG_BACK], 0, 0);
 	drawImage(backgrounds[BG_WIN], 32, 192);
@@ -174,19 +156,22 @@ void doGameLost() {
 	char name[64] = "";
 	int namePos = 0, hiPos = 0, i = 0, needUpdate = 0;
 
-	/* clear the field */
-	doBombs();
-	eatBlocks();
+	resetField();
 
 	/* check for hiscore */
-	for(i=0; i<MAX_HISCORES; i++) if(state->score > hiscores[i].score) needUpdate = hiPos = i;
-
+	for(i=MAX_HISCORES; i>0; i--) {
+		printf("Comparing %i to %i...\n", state->score, hiscores[i-1].score);
+		if(state->score > hiscores[i-1].score) {
+			needUpdate = hiPos = i;
+			printf("Beat hiscore %i\n", i);
+		}
+	}
 
 	drawImage(backgrounds[BG_BACK], 0, 0);
 	drawImage(backgrounds[BG_LOSE], 32, 192);
 
 	refresh();
-	SDL_Delay(500);
+	SDL_Delay(250);
 	while (SDL_PollEvent(&event));
 
 	inGame = 1;
@@ -196,7 +181,7 @@ void doGameLost() {
 		while (SDL_PollEvent(&event)) {
 			/*@ -usedef @*/
 			if (event.type == SDL_QUIT) {hasQuit = 1;}
-			if (hiPos && event.type == SDL_KEYDOWN) {
+			if (hiPos >= 0 && event.type == SDL_KEYDOWN) {
 				if(event.key.keysym.sym >= SDLK_a && event.key.keysym.sym <= SDLK_z) {
 					if(namePos < 8) {
 						name[namePos++] = event.key.keysym.sym;
@@ -240,7 +225,5 @@ void doGameLost() {
 		/* FIXME : Bounce some blocks around */
 		refresh();
 		SDL_Delay(1000 / 10);
-
-		if(frame == 100) break;
 	}
 }

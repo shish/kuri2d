@@ -1,6 +1,6 @@
 /**
  * vim:ts=4:sw=4
- * kuri2d.c - (c) Shish 2003 - shishthemoomin@yahoo.com
+ * kuri2d.c - (c) Shish 2003, 2005 - shish@shish.is-a-geek.net
  * hack to make the thing work on MinGW without lots of #ifdefs
  *
  * This program is free software; you can redistribute it and/or modify
@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 				break;
 		}
 	}
-	if(!ok) return(0);
+	if(!ok) return 0;
 
 #ifdef __linux__
 	printf("linux mode: cd-ing to /usr/local/share/games/kuri2d/\n");

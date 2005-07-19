@@ -1,6 +1,6 @@
 /**
  * vim:ts=4:sw=4
- * main.c - (c) Shish 2003 - shishthemoomin@yahoo.com
+ * main.c - (c) Shish 2003, 2005 - shish@shish.is-a-geek.net
  * controls most of the GUI IO
  *
  * This program is free software; you can redistribute it and/or modify

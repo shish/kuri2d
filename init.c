@@ -1,6 +1,6 @@
 /**
  * vim:ts=4:sw=4
- * init.c - (c) Shish 2003 - shishthemoomin@yahoo.com
+ * init.c - (c) Shish 2003, 2005 - shish@shish.is-a-geek.net
  * loads resources
  *
  * This program is free software; you can redistribute it and/or modify
@@ -49,8 +49,14 @@ int doInit(Uint32 vidFlags, int doWipe) {
 	state->score = (Uint8)0;
 	state->lives = (Uint8)3;
 
+	for(i=0; i<MAX_HISCORES; i++) {
+		strcpy(hiscores[i].name, "nobody");
+		hiscores[i].score = 0;
+		hiscores[i].level = 0;
+	}
+
 	if(level && startState && state &&
-		loadHiScores() &&
+		(doWipe ? 1 : loadHiScores()) &&
 		loadBackgrounds() &&
 		loadBlocks() &&
 		loadLevels() &&
@@ -61,14 +67,6 @@ int doInit(Uint32 vidFlags, int doWipe) {
 		return 1;
 	}
 
-	if(doWipe) {
-		for(i=0; i<MAX_HISCORES; i++) {
-			strcpy(hiscores[i].name, "nobody");
-			hiscores[i].score = 0;
-			hiscores[i].level = 0;
-		}
-	}
-	
 	/* just a test */
 	/* printf("Inited OK, daemonizing...\n");
 	daemon(1, 0); */

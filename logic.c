@@ -1,6 +1,6 @@
 /**
  * vim:ts=4:sw=4
- * logic.c - (c) Shish 2003 - shishthemoomin@yahoo.com
+ * logic.c - (c) Shish 2003, 2005 - shish@shish.is-a-geek.net
  * an extension of main.c to handle the logic parts
  *
  * This program is free software; you can redistribute it and/or modify
@@ -207,7 +207,7 @@ void eatBlocks() {
 
 	for (y = 0; y < level->fieldHeight; y++) {
 		for (x = 0; x < level->fieldWidth; x++) {
-			if(level->blocks[x][y] != BT_NULL) set |= eatBlock(x, y);
+			if(level->field[x][y] == BT_TRIGGERED) set |= eatBlock(x, y);
 		}
 	}
 	if(set) playSound(CH_DROP, sounds[SND_DROP]);
@@ -294,22 +294,20 @@ int isStageClear() {
 
 /**
  * Figure out if the player gets a place in the charts, if they do, add them
- * and return their position. If they don't return 0
  */
 /*@-mayaliasunique@*/
-int addHiScore(char *name, int score, int level) {
+void addHiScore(char *name, int score, int level) {
 	int i, j;
 	
 	for(i=0; i<MAX_HISCORES; i++) {
 		if(score > hiscores[i].score) {
 			printf("Player got a hi-score! (%s, %i, %i)\n", name, score, level);
-			for(j=MAX_HISCORES-2; j>i; j--) {memcpy(&hiscores[j+1], &hiscores[j], sizeof(HiScore));}
+			for(j=MAX_HISCORES-2; j>i; j--) memcpy(&hiscores[j+1], &hiscores[j], sizeof(HiScore));
 			strncpy(hiscores[i].name, name, 8);
 			hiscores[i].score = score;
 			hiscores[i].level = level;
-			return i+1;
+			break;
 		}
 	}
-	return 0;
 }
 /*@=mayaliasunique@*/

@@ -1,6 +1,6 @@
 /**
  * vim:ts=4:sw=4
- * kurried.c - (c) Shish 2003 - shishthemoomin@yahoo.com
+ * kurried.c - (c) Shish 2003, 2005 - shish@shish.is-a-geek.net
  * edits kuri2d levels
  *
  * This program is free software; you can redistribute it and/or modify
