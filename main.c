@@ -26,7 +26,7 @@ BasicSound  *sounds[SND_COUNT];
 TTF_Font	*fonts[FONT_COUNT];
 SDL_Color    black, white;
 
-HiScore hiscores[5];
+HiScore hiscores[MAX_HISCORES];
 SDL_bool inGame = SDL_FALSE, hasWon = SDL_FALSE,
 	hasLost = SDL_FALSE, hasQuit = SDL_FALSE;
 State *state, *startState;
