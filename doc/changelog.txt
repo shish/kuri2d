@@ -1,0 +1,97 @@
+Future:
+
+????-??-?? / 1.0.0: Shish
+ * State: Release #1
+ * Sound: SFX + Music should work
+ * menu.c: Hiscore entry should be possible via GUI
+
+????-??-?? / 0.9.0: Shish
+ * Status: 
+
+==========================================================================
+
+Present:
+2005-05-17 / 0.8.9: Shish
+ * State: SDL_shish integrated
+ * Misc: Things compile nicer
+
+==========================================================================
+
+
+Past:
+
+2004-07-12 / 0.8.8: Shish
+ * State: Yet more!
+ * Misc: Hiscore support, Font support
+ * menu.c: Menu instructions rendered
+ * kuri2d.h: LOTS more enums
+ * kuri2d.c / init.c: Score wiping (-w switch)
+
+2004-02-28 / 0.8.7: Shish
+ * State: Many maps
+ * init.c: The main game loads maps from /data/levlist.dat
+ * init.c / Data: /data/ reorganised
+
+2003-10-10 / 0.8.6: Shish
+ * State: More structification + Editor
+ * kuri2d.h: Most of the game vars have been moved from global into
+   structs for easy loading and saving
+ * kuri2d.c: When run with -e <fname> the game goes into editor mode
+
+2003-08-10 / 0.8.5: Shish
+ * State: Pause!
+ * game.c: The game now pauses with a press of the "p" key
+
+2003-08-06 / 0.8.4: Shish
+ * State: File IO (Sort of)
+ * kuri2d.h: The levels are now loaded out of KuriLevel structs, which
+   should make level editing and saving a lot easier
+
+2003-08-04 / 0.8.3: Shish
+ * State: Tweaks
+ * logic.c: Got rid of the "bomb eating other bomb" bug
+ * logic.c: Got rid of the "persistant trap" bug
+
+2003-08-03 / 0.8.2: Shish
+ * State: No SDL_image
+ * init.c: I now *have* ripped SDL_image's loadpng function - libSDL_shish
+   is 4KB bigger, but it's more portable, and SDL_image is ~30KB
+ * Makefile: Hacked so it should hopefully build cleanly with
+   GCC / MinGW + SDL + SDL_shish
+
+2003-08-02 / 0.8.1: Shish
+ * State: Smaller still
+ * Data: The background has been separated from the other images as it's
+   the least compressible part. The data files are now 350KB.
+ * Data: Having cut up the images further (ie the logo is now a seperate
+   file), they're now 300KB
+
+2003-08-02 / 0.8.0: Shish
+ * State: PNG?
+ * init.c: libSDL_shish should soon have PNG support, so all the calls
+   to SDL_LoadBMP will be replaced with SDL_LoadPNG, and data files
+   changed appropriately.
+ * init.c: Actually I just remembered libSDL_image, so I'm using that.
+   Data files have gone from 4MB to 600KB. I may well just steal
+   SDL_image's loadpng function, as that's all I need.
+
+2003-08-01 / 0.7.5: Shish
+ * Info: Some bugs fixed, broken sound code commented out
+
+2003-07-31 / 0.7.0: Shish
+ * State: Graphics
+ * Data: All the backgrounds are re-done
+ * Info: Sound support added (*support*, not *implementation*)
+
+2003-07-30 / 0.6.0: Shish
+ * State: Worketh
+ * Info: The basic gameplay is finalized
+
+2003-07-29 / 0.5.0: Shish
+ * State: The Beta
+ * Info: Much funkness, it's nearly finished!
+
+2003-07-28 / 0.0.0: Shish
+ * State: The Alpha
+ * Info: Started from scratch at midnight, the alpha was finished at 6am
+   

@@ -1,0 +1,15 @@
+Begin3
+Title:          Kuri2d 
+Version:        0.8.7
+Entered-date:   
+Description:    An arcade puzzle game using modified Kurushi rules
+Group:          Games/Puzzle
+Keywords:       Arcade Puzzle Games SDL Kurushi IQ
+Author:         Shish <shishthemoomin@yahoo.com> 
+Maintained-by:  Shish <shishthemoomin@yahoo.com> 
+Primary-site:   http://progs.mektrix.2ya.com/kuri2d/
+Home-page:      http://progs.mektrix.2ya.com/kuri2d/ 
+Original-site:  http://progs.mektrix.2ya.com/kuri2d/
+Platforms:      All SDL supported platforms (tested on Linux/GCC and Win98/MinGW)
+Copying-policy: GNU Public License
+End

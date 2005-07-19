@@ -1,0 +1,14 @@
+
+font.bmp	- bitmap font
+back.bmp	- background
+
+empty.bmp	- empty space
+block.bmp	- basic block
+green.bmp	- advantage blocks
+black.bmp	- forbidden block
+
+loop.wav	- music
+place.wav	- when a trap is placed
+drop.wav	- when a block is triggered
+clunk.wav	- each time the blocks step
+

@@ -1,0 +1,16 @@
+Due to my lacking knowledge of how to make cross-platform data-finding work, 
+I'm using the windows format of /progname/exefile /progname/data/datafiles
+
+
+Windows Users:
+Unzip kuri2d-*-i386.tar.gz into /Program Files/kuri2d/
+Unzip kuri2d-*-data.tar.gz into /Program Files/kuri2d/
+Right click /Program Files/kuri2d/kuri2d.exe, click "copy"
+Go to the desktop, right click, press "paste shortcut"
+
+Linux Users:
+o) untar
+o) put kiri2d wherever (eg /usr/games/bin/)
+o) Put data files wherever - kuri2d will try to first find them in
+   /usr/share/games/kuri2d/, and then try the local dir if that fails
+
