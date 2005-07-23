@@ -12,6 +12,7 @@
 
 #include "SDL.h"
 #include <math.h>
+#include <stdio.h>
 #include "kuri2d.h"
 
 /* Menu Instructions */
@@ -29,15 +30,16 @@ static char *mins[] = {
 	NULL
 };
 
+
 /**
  * show the "menu" bitmap
- * wait 500ms
+ * wait 250ms
  * clear event stack
  * wait for an event
  */
 void doMenu() {
 	int half = 640 / 2 - 16;
-	int xo2, minsy = 100, i; /* x offset 2, menu instruction y offset, int */
+	int xo2, minsy = 96, i; /* x offset 2, menu instruction y offset, int */
 	SDL_Event event;
 	SDL_Surface *hitex, *t1, *t2, *t3;
 	char histring[64];
@@ -66,7 +68,7 @@ void doMenu() {
 	drawImage(backgrounds[BG_LOGO], 198, 14);
 	drawImage(blockImages[BT_BLOCK], half, 480-32-8);
 	refresh();
-	SDL_Delay(500);
+	SDL_Delay(250);
 	while (SDL_PollEvent(&event));
 
 	inGame = 1;
@@ -101,9 +103,10 @@ void doMenu() {
 	}
 }
 
+
 /**
  * show the "you win" bitmap
- * wait 500ms
+ * wait 250ms
  * clear event stack
  * wait for an event
  */
@@ -115,7 +118,7 @@ void doGameWon() {
 	drawImage(backgrounds[BG_BACK], 0, 0);
 	drawImage(backgrounds[BG_WIN], 32, 192);
 	refresh();
-	SDL_Delay(500);
+	SDL_Delay(250);
 	while (SDL_PollEvent(&event));
 
 	inGame = 1;
@@ -145,7 +148,7 @@ void doGameWon() {
 
 /**
  * show the "game over" bitmap
- * wait 500ms
+ * wait 250ms
  * clear event stack
  * wait for an event
  */
@@ -154,24 +157,22 @@ void doGameLost() {
 	SDL_Surface *hiMsg;
 	char hiText[64];
 	char name[64] = "";
-	int namePos = 0, hiPos = 0, i = 0, needUpdate = 0;
+	int namePos = 0, hiPos = 0, needUpdate = 0;
 
 	resetField();
 
 	/* check for hiscore */
-	for(i=MAX_HISCORES; i>0; i--) {
-		printf("Comparing %i to %i...\n", state->score, hiscores[i-1].score);
-		if(state->score > hiscores[i-1].score) {
-			needUpdate = hiPos = i;
-			printf("Beat hiscore %i\n", i);
+	for(hiPos=0; hiPos<MAX_HISCORES; hiPos++) {
+		if(state->score > hiscores[hiPos].score) {
+			needUpdate = 1;
+			break;
 		}
 	}
 
 	drawImage(backgrounds[BG_BACK], 0, 0);
 	drawImage(backgrounds[BG_LOSE], 32, 192);
 
-	refresh();
-	SDL_Delay(250);
+	/* clear events */
 	while (SDL_PollEvent(&event));
 
 	inGame = 1;
@@ -180,37 +181,39 @@ void doGameLost() {
 		frame++;
 		while (SDL_PollEvent(&event)) {
 			/*@ -usedef @*/
-			if (event.type == SDL_QUIT) {hasQuit = 1;}
-			if (hiPos >= 0 && event.type == SDL_KEYDOWN) {
-				if(event.key.keysym.sym >= SDLK_a && event.key.keysym.sym <= SDLK_z) {
-					if(namePos < 8) {
-						name[namePos++] = event.key.keysym.sym;
-						name[namePos] = 0;
-						needUpdate = 1;
-					}
-				}
-				else {
-					switch (event.key.keysym.sym) {
-						case SDLK_RETURN:
-							addHiScore(name, state->score, state->level);
-							inGame = 0;
-							break;
-						case SDLK_BACKSPACE:
-							if(namePos > 0) name[--namePos] = 0;
+			if(event.type == SDL_QUIT) {hasQuit = 1;}
+			if(event.type == SDL_KEYDOWN) {
+				if(hiPos < MAX_HISCORES) {
+					if(event.key.keysym.sym >= SDLK_a && event.key.keysym.sym <= SDLK_z) {
+						if(namePos < 8) {
+							name[namePos++] = event.key.keysym.sym;
+							name[namePos] = 0;
 							needUpdate = 1;
-							break;
-						default:
-							break;
+						}
+					}
+					else {
+						switch (event.key.keysym.sym) {
+							case SDLK_RETURN:
+								addHiScore(name, state->score, state->level);
+								inGame = 0;
+								break;
+							case SDLK_BACKSPACE:
+								if(namePos > 0) name[--namePos] = 0;
+								needUpdate = 1;
+								break;
+							default:
+								break;
+						}
 					}
 				}
-			}
-			else if(event.type == SDL_KEYDOWN) {
-				inGame = 0;
+				else if(event.type == SDL_KEYDOWN) {
+					inGame = 0;
+				}
 			}
 			/*@ =usedef @*/
 		}
-		
-		if(needUpdate) {
+
+		if(hiPos < MAX_HISCORES && needUpdate) {
 			drawImage(backgrounds[BG_BACK], 0, 0);
 			drawImage(backgrounds[BG_LOSE], 32, 192);
 			sprintf(hiText, "New Hiscore: %i points!", state->score);

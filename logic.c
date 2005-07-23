@@ -150,8 +150,6 @@ static void slideBlock(Uint8 x, Uint8 y) {
 			playSound(CH_END, sounds[SND_DIE]);
 		}
 	}
-	/* do we need this? (!) */
-	/* eatBlock(x, y); */
 }
 
 
@@ -252,17 +250,6 @@ static SDL_bool eatBlock(Uint8 x, Uint8 y) {
 
 
 /**
- * sets the tiles by memcpying the loaded map into the current map -
- * this means that the loaded map can stay clean for reuse
- */
-void setField() {
-	printf("Setting current level to %i\n", state->level);
-	memcpy(level, &levels[state->level], sizeof(KuriLevel));
-	resetField();
-}
-
-
-/**
  * sets all the tiles to BT_EMPTY
  */
 void resetField() {
@@ -300,9 +287,9 @@ void addHiScore(char *name, int score, int level) {
 	int i, j;
 	
 	for(i=0; i<MAX_HISCORES; i++) {
-		if(score > hiscores[i].score) {
-			printf("Player got a hi-score! (%s, %i, %i)\n", name, score, level);
-			for(j=MAX_HISCORES-2; j>i; j--) memcpy(&hiscores[j+1], &hiscores[j], sizeof(HiScore));
+		if(score >= hiscores[i].score) {
+			printf("Player got a hi-score! (%s, %i, %i) Inserting into position %i\n", name, score, level, i);
+			for(j=MAX_HISCORES-1; j>i; j--) memcpy(&hiscores[j], &hiscores[j-1], sizeof(HiScore));
 			strncpy(hiscores[i].name, name, 8);
 			hiscores[i].score = score;
 			hiscores[i].level = level;
