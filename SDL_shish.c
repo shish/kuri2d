@@ -6,8 +6,8 @@
 #include <sys/stat.h>
 #include "SDL_shish.h"
 
-SDL_Surface *rootSurface;
-SDL_Surface *currentSurface;
+static SDL_Surface *rootSurface;
+static SDL_Surface *currentSurface;
 Uint32 currentColor = 0xFFFF7700;
 
 void refresh() {
@@ -70,56 +70,6 @@ void unlockScreen() {
 	}
 }
 
-void putPixel(int x, int y, Uint8 r, Uint8 g, Uint8 b) {
-	Uint32 color = SDL_MapRGB(currentSurface->format, r, g, b);
-
-	switch(currentSurface->format->BytesPerPixel) {
-		case 1:
-			{
-				Uint8 *bufp;
-				bufp = (Uint8 *)currentSurface->pixels +
-					y*currentSurface->pitch + x;
-				*bufp = color;
-			}
-			break;
-
-		case 2:
-			{
-				Uint16 *bufp;
-				bufp = (Uint16 *)currentSurface->pixels +
-					y*currentSurface->pitch/2 + x;
-				*bufp = color;
-			}
-			break;
-
-		case 3:
-			{
-				Uint8 *bufp;
-				bufp = (Uint8 *)currentSurface->pixels +
-					y*currentSurface->pitch + x*3;
-				if(SDL_BYTEORDER == SDL_LIL_ENDIAN) {
-					bufp[0] = color;
-					bufp[1] = color >> 8;
-					bufp[2] = color >> 16;
-				}
-				else {
-					bufp[2] = color;
-					bufp[1] = color >> 8;
-					bufp[0] = color >> 16;
-				}
-			}
-			break;
-
-		case 4:
-			{
-				Uint32 *bufp;
-				bufp = (Uint32 *)currentSurface->pixels +
-					y*currentSurface->pitch/4 + x;
-			}
-			break;
-	}
-}
-
 void drawImage(SDL_Surface *img, int x, int y) {
 	SDL_Rect dest;
 	dest.x = x;
@@ -149,6 +99,6 @@ void drawImageAlpha(SDL_Surface *img, int x, int y, Uint8 a) {
 	img->format->alpha = 0xFF;
 }
 
-void playSound(int channel, BasicSound* data) {
+void playSound(/*@ unused @*/ int channel, /*@ unused @*/ BasicSound* data) {
 	/* FIXME: implement this */
 }

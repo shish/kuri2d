@@ -41,7 +41,6 @@ void refresh();
 
 void lockScreen();
 void unlockScreen();
-void putPixel(int x, int y, Uint8 r, Uint8 g, Uint8 b);
 void drawImage(SDL_Surface *img, int x, int y);
 void drawImageAlpha(SDL_Surface *img, int x, int y, Uint8 a);
 void drawImageClipped(SDL_Surface *img, int x, int y,
