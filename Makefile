@@ -1,4 +1,4 @@
-VERSION = 0.8.9
+VERSION = 0.9.0
 CC = gcc
 CFLAGS = -ansi -pedantic -Wall -ggdb \
 	 -I/usr/include/SDL -IC:/mingw/include/SDL \

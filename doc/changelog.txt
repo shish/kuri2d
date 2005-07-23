@@ -3,22 +3,23 @@ Future:
 ????-??-?? / 1.0.0: Shish
  * State: Release #1
  * Sound: SFX + Music should work
- * menu.c: Hiscore entry should be possible via GUI
-
-????-??-?? / 0.9.0: Shish
- * Status: 
 
 ==========================================================================
 
 Present:
-2005-05-17 / 0.8.9: Shish
- * State: SDL_shish integrated
- * Misc: Things compile nicer
+
+2005-05-18 / 0.9.0: Shish
+ * Status: LOTS of cleanups
+ * menu.c: Graphical hiscore name entry works
 
 ==========================================================================
 
 
 Past:
+
+2005-05-17 / 0.8.9: Shish
+ * State: SDL_shish integrated
+ * Misc: Things compile nicer
 
 2004-07-12 / 0.8.8: Shish
  * State: Yet more!
