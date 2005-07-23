@@ -217,7 +217,6 @@ static int loadLevels() {
 		}
 	}
 
-	setField();
 	return 1;
 }
 

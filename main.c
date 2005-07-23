@@ -79,7 +79,8 @@ int doKuri2d() {
 static void initGame() {
 	char levelt[64], targett[64];
 
-	setField();
+	memcpy(level, &levels[state->level], sizeof(KuriLevel));
+	resetField();
 	setOffsets();
 
 	px = level->px;

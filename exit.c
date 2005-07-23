@@ -77,9 +77,6 @@ int doExit() {
 	free(level);
 	/*@ =unqualifiedtrans @*/
 
-	/* write hiscores */
-	/* fwrite(hiscores, sizeof(HiScore), 5, stdout); */
-
 	SDL_Quit();
 	TTF_Quit();
 	return 1;
