@@ -14,19 +14,20 @@
 #include <stdlib.h>
 #include "SDL.h"
 #include "kuri2d.h"
+#include "binreloc.h"
 #include "SDL_shish.h"
 #include "SDL_ttf.h"
 
 int doExit() {
 	int i;
+	FILE *fp;
 
-	FILE *fp = fopen("data/hiscores.dat", "wb+");
-	if(!fp) {
-		printf("Couldn't open the hiscore file for writing\n");
-	}
-	else {
+	if((fp = fopen(br_find_data("hiscores.dat"), "wb+"))) {
 		(void)fwrite(hiscores, sizeof(hiscores), 1, fp);
 		(void)fclose(fp);
+	}
+	else {
+		printf("Couldn't open the hiscore file for writing\n");
 	}
 
 	for(i=0; i<BG_COUNT; i++) {
@@ -68,9 +69,7 @@ int doExit() {
 	}
 	
 	/**
-	 * free any pointed to variables / objects. I'm not sure
-	 * if this is needed, or whether the OS frees everything
-	 * when a program exits, but just in case.
+	 * free any pointed to variables / objects.
 	 */
 	free(state);
 	free(startState);

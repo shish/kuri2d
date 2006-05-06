@@ -1,12 +1,15 @@
 VERSION = 0.9.0
 CC = gcc
-CFLAGS = -ansi -pedantic -Wall -ggdb \
-	 -I/usr/include/SDL -IC:/mingw/include/SDL \
-	 -DVERSION=\"$(VERSION)\"
-	 # -03
+CFLAGS = -ggdb \
+	-I/usr/include/SDL -IC:/mingw/include/SDL \
+	-DVERSION=\"$(VERSION)\" \
+	-DENABLE_BINRELOC=1 \
+	-pedantic -Wall -std=c99
+	# -ansi -std=c99 \
+	# -03
 LDFLAGS = -lSDLmain -lSDL_ttf -lSDL_image -lpng -lSDL -mwindows
 
-OBJECTS = kuri2d.o main.o editor.o menu.o logic.o init.o exit.o SDL_shish.o
+OBJECTS = kuri2d.o main.o editor.o menu.o logic.o init.o exit.o SDL_shish.o binreloc.o
 GNUFILES = doc/* kuri2d.lsm
 BINARIES = kuri2d # kuri2d.exe 
 
@@ -29,7 +32,7 @@ dist: kuri2d
 	tar -czvf kuri2d-$(VERSION)-data.tar.gz data
 
 clean:
-	rm -f $(OBJECTS)
+	rm -f kuri2d $(OBJECTS)
 
 install:
 	cp kuri2d /usr/local/games/bin/

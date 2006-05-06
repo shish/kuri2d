@@ -60,13 +60,6 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	if(!ok) return 0;
-
-#ifdef __linux__
-	printf("linux mode: cd-ing to /usr/local/share/games/kuri2d/\n");
-	if(chdir("/usr/local/share/games/kuri2d/") != 0) {
-		printf("cd-ing failed - the game will probably complain about missing data files\n");
-	}
-#endif
 	
 	if(!doInit(vidFlags, doWipe)) return 1;
 	if(!(editMode ? doEditor(levelName) : doKuri2d())) return 2;

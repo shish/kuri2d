@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include "SDL.h"
 #include "kuri2d.h"
+#include "binreloc.h"
 #include "SDL_image.h"
 #include "SDL_ttf.h"
 
@@ -33,7 +34,13 @@ static int openFrame(Uint32 vidFlags);
 int doInit(Uint32 vidFlags, int doWipe) {
 	int i;
 
-	if (SDL_Init((Uint32)(SDL_INIT_VIDEO | SDL_INIT_AUDIO))) {
+	BrInitError error;
+	if(br_init(&error, "kuri2d") == 0 && error != BR_INIT_ERROR_DISABLED) {
+		printf("Warning: BinReloc failed to initialize (error code %d)\n", error);
+		printf("Will fallback to hardcoded default path.\n");
+	}
+
+	if(SDL_Init((Uint32)(SDL_INIT_VIDEO | SDL_INIT_AUDIO))) {
 		printf("Unable to init SDL: %s\n", SDL_GetError());
 		return 0;
 	}
@@ -67,32 +74,28 @@ int doInit(Uint32 vidFlags, int doWipe) {
 		return 1;
 	}
 
-	/* just a test */
-	/* printf("Inited OK, daemonizing...\n");
-	daemon(1, 0); */
-	
 	return 0;
 }
 	
 static int loadHiScores() {
 	int read, i;
-	FILE *hs_fp = fopen("data/hiscores.dat", "rb");
+	FILE *fp;
 
-	if(!hs_fp) {
-		printf("Couldn't open data/hiscores.dat for reading\n");
+	if((fp = fopen(br_find_data("hiscores.dat"), "rb"))) {
+		read = fread(hiscores, sizeof(hiscores), 1, fp);
+		if(read != 1) {
+			printf("HiScore reading failed - only %i of %i charts were read\n",
+					read, sizeof(hiscores));
+		}
+		(void)fclose(fp);
+	}
+	else {
+		printf("Couldn't open '%s' for reading\n", br_find_data("hiscores.dat"));
 		for(i=0; i<MAX_HISCORES; i++) {
 			strcpy(hiscores[i].name, "nobody");
 			hiscores[i].score = 0;
 			hiscores[i].level = 0;
 		}
-	}
-	else {
-		read = fread(hiscores, sizeof(hiscores), 1, hs_fp);
-		if(read != 1) {
-			printf("HiScore reading failed - only %i of %i charts were read\n",
-					read, sizeof(hiscores));
-		}
-		(void)fclose(hs_fp);
 	}
 	return 1;
 }
@@ -100,13 +103,13 @@ static int loadHiScores() {
 static int loadBackgrounds() {
 	int i;
 
-	backgrounds[BG_BACK]   = IMG_Load("data/menu/back.png");
-	backgrounds[BG_MENU]   = IMG_Load("data/menu/menu.png");
-	backgrounds[BG_GAME]   = IMG_Load("data/menu/game.png");
-	backgrounds[BG_WIN]    = IMG_Load("data/menu/gamewon.png");
-	backgrounds[BG_LOSE]   = IMG_Load("data/menu/gamelost.png");
-	backgrounds[BG_LOGO]   = IMG_Load("data/menu/logo.png");
-	backgrounds[BG_PAUSED] = IMG_Load("data/menu/paused.png");
+	backgrounds[BG_BACK]   = IMG_Load(br_find_data("menu/back.png"));
+	backgrounds[BG_MENU]   = IMG_Load(br_find_data("menu/menu.png"));
+	backgrounds[BG_GAME]   = IMG_Load(br_find_data("menu/game.png"));
+	backgrounds[BG_WIN]    = IMG_Load(br_find_data("menu/gamewon.png"));
+	backgrounds[BG_LOSE]   = IMG_Load(br_find_data("menu/gamelost.png"));
+	backgrounds[BG_LOGO]   = IMG_Load(br_find_data("menu/logo.png"));
+	backgrounds[BG_PAUSED] = IMG_Load(br_find_data("menu/paused.png"));
 
 	for(i=0; i<BG_COUNT; i++) {
 		if(backgrounds[i] == NULL) {
@@ -120,20 +123,20 @@ static int loadBackgrounds() {
 static int loadBlocks() {
 	int i;
 	/* blocks */
-	blockImages[BT_BLOCK]      = IMG_Load("data/blocks/block.png");
-	blockImages[BT_BOMB]       = IMG_Load("data/blocks/green.png");
-	blockImages[BT_FORBIDDEN]  = IMG_Load("data/blocks/black.png");
+	blockImages[BT_BLOCK]      = IMG_Load(br_find_data("blocks/block.png"));
+	blockImages[BT_BOMB]       = IMG_Load(br_find_data("blocks/green.png"));
+	blockImages[BT_FORBIDDEN]  = IMG_Load(br_find_data("blocks/black.png"));
 	/* tiles */
-	blockImages[BT_EMPTY]      = IMG_Load("data/blocks/empty.png");
-	blockImages[BT_ABOMB]      = IMG_Load("data/blocks/dgreen.png");
-	blockImages[BT_TRIGGERED]  = IMG_Load("data/blocks/red.png");
-	blockImages[BT_TRAP]       = IMG_Load("data/blocks/blue.png");
+	blockImages[BT_EMPTY]      = IMG_Load(br_find_data("blocks/empty.png"));
+	blockImages[BT_ABOMB]      = IMG_Load(br_find_data("blocks/dgreen.png"));
+	blockImages[BT_TRIGGERED]  = IMG_Load(br_find_data("blocks/red.png"));
+	blockImages[BT_TRAP]       = IMG_Load(br_find_data("blocks/blue.png"));
 	/* overlays */
-	blockImages[BT_ABOMB_OVER] = IMG_Load("data/marks/greent.png");
-	blockImages[BT_TRAP_OVER]  = IMG_Load("data/marks/bluet.png");
-	blockImages[BT_TRIG_OVER]  = IMG_Load("data/marks/redt.png");
+	blockImages[BT_ABOMB_OVER] = IMG_Load(br_find_data("marks/greent.png"));
+	blockImages[BT_TRAP_OVER]  = IMG_Load(br_find_data("marks/bluet.png"));
+	blockImages[BT_TRIG_OVER]  = IMG_Load(br_find_data("marks/redt.png"));
 	/* Objects */
-	blockImages[BT_MARKER]     = IMG_Load("data/marks/marker.png");
+	blockImages[BT_MARKER]     = IMG_Load(br_find_data("marks/marker.png"));
 
 	for(i=0; i<BT_COUNT; i++) {
 		if(blockImages[i] == NULL) {
@@ -148,13 +151,13 @@ static int loadSounds() {
 	/*
 	int i;
 
-	loadWav("data/sound/start.wav", SND_START);
-	loadWav("data/sound/set.wav",   SND_SET);
-	loadWav("data/sound/trig.wav",  SND_TRIG);
-	loadWav("data/sound/drop.wav",  SND_DROP);
-	loadWav("data/sound/die.wav",   SND_DIE);
-	loadWav("data/sound/lose.wav",  SND_LOSE);
-	loadWav("data/sound/win.wav",   SND_WIN);
+	loadWav(br_find_data("sound/start.wav"), SND_START);
+	loadWav(br_find_data("sound/set.wav"),   SND_SET);
+	loadWav(br_find_data("sound/trig.wav"),  SND_TRIG);
+	loadWav(br_find_data("sound/drop.wav"),  SND_DROP);
+	loadWav(br_find_data("sound/die.wav"),   SND_DIE);
+	loadWav(br_find_data("sound/lose.wav"),  SND_LOSE);
+	loadWav(br_find_data("sound/win.wav"),   SND_WIN);
 
 	for(i=0; i<SND_COUNT; i++) {
 		if(sounds[i] == NULL) {
@@ -168,11 +171,10 @@ static int loadSounds() {
 
 static int loadLevels() {
 	Uint8 i, j, k;
-	FILE *levList = fopen("data/levlist.dat", "r");
+	FILE *levList = fopen(br_find_data("levlist.dat"), "r");
 	char buf[32];
 
 	if(levList) {
-		printf("Found levlist.dat: reading levels\n");
 		i = 0;
 		while(!feof(levList)) {
 			(void)fgets(buf, 32, levList);
@@ -185,7 +187,7 @@ static int loadLevels() {
 		(void)fclose(levList);
 	}
 	else {
-		printf("Couldn't find levlist.dat: generating levels\n");
+		printf("Couldn't find '%s': generating levels\n", br_find_data("levlist.dat"));
 		state->level = 0;
 		for(k=0; k<16; k++) {
 			levels[k].inited = 1;
@@ -224,7 +226,7 @@ static int openFrame(Uint32 vidFlags) {
 	SDL_Surface *root;
 
 	SDL_WM_SetCaption("Kuri 2d", "Kuri 2d");
-	SDL_WM_SetIcon(IMG_Load("data/kuri.png"), NULL);
+	SDL_WM_SetIcon(IMG_Load(br_find_data("kuri.png")), NULL);
 	root = SDL_SetVideoMode(640, 480, 32, vidFlags);
 	if(root == NULL) {
 		printf("Unable to open window: %s\n", SDL_GetError());
@@ -239,10 +241,10 @@ static int loadFonts() {
 	int i;
 	TTF_Init();
 
-	fonts[FONT_TITLE]   = TTF_OpenFont("data/fonts/arial.ttf", 72);
-	fonts[FONT_SCORE]   = TTF_OpenFont("data/fonts/arial.ttf", 26);
-	fonts[FONT_MINS]    = TTF_OpenFont("data/fonts/arial.ttf", 20);
-	fonts[FONT_HISCORE] = TTF_OpenFont("data/fonts/arial.ttf", 20);
+	fonts[FONT_TITLE]   = TTF_OpenFont(br_find_data("fonts/arial.ttf"), 72);
+	fonts[FONT_SCORE]   = TTF_OpenFont(br_find_data("fonts/arial.ttf"), 26);
+	fonts[FONT_MINS]    = TTF_OpenFont(br_find_data("fonts/arial.ttf"), 20);
+	fonts[FONT_HISCORE] = TTF_OpenFont(br_find_data("fonts/arial.ttf"), 20);
 
 	for(i=0; i<FONT_COUNT; i++) {
 		if(fonts[i] == NULL) {

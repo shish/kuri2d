@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "kuri2d.h"
+#include "binreloc.h"
 #include "SDL_shish.h"
 
 static void setBlock(blockType type);
@@ -88,15 +89,13 @@ static void renameMap() {
 
 int readMap(KuriLevel *klevel) {
 	FILE *mapfile;
-	char  fname[32];
+	char *fname = malloc(FILENAME_MAX);
 	
-	strcpy(fname, "./data/maps/");
-	strcat(fname, klevel->name);
-	strcat(fname, ".kmp");
+	snprintf(fname, FILENAME_MAX, "maps/%s.kmp", klevel->name);
 
-	mapfile = fopen(fname, "rb");
+	mapfile = fopen(br_find_data(fname), "rb");
 	if(mapfile) {
-		printf("Reading file '%s'\n", fname);
+		printf("Reading file '%s'\n", br_find_data(fname));
 		(void)fread(klevel, sizeof(KuriLevel), 1, mapfile);
 		(void)fclose(mapfile);
 		if(strncmp(klevel->sig, mapSig, 4) != 0) {
@@ -105,7 +104,7 @@ int readMap(KuriLevel *klevel) {
 		}
 	}
 	else {
-		printf("File \"%s\" not found\n", fname);
+		printf("File '%s' not found\n", br_find_data(fname));
 	}
 	free(fname);
 
@@ -114,11 +113,9 @@ int readMap(KuriLevel *klevel) {
 
 int writeMap(KuriLevel *klevel) {
 	FILE *mapfile;
-	char fname[32];
+	char fname[128];
 	
-	strcpy(fname, "./data/maps/");
-	strcat(fname, klevel->name);
-	strcat(fname, ".kmp");
+	snprintf(fname, 128, "maps/%s.kmp", klevel->name);
 	
 	if(!klevel) {
 		printf("WARNING: Tried to save NULL!\n");
@@ -126,15 +123,15 @@ int writeMap(KuriLevel *klevel) {
 	}
 	strcpy(klevel->sig, mapSig); /* set the sig to the current version */
 	klevel->inited = (Uint8)1;   /* this should be set for all maps */
-	printf("Writing file '%s'\n", fname);
+	printf("Writing file '%s'\n", br_find_data(fname));
 
-	mapfile = fopen(fname, "wb+");
+	mapfile = fopen(br_find_data(fname), "wb+");
 	if(mapfile) {
 		(void)fwrite(klevel, sizeof(KuriLevel), 1, mapfile);
 		(void)fclose(mapfile);
 	}
 	else {
-		printf("File '%s' could not be written to\n", fname);
+		printf("File '%s' could not be written to\n", br_find_data(fname));
 		return 0;
 	}
 	return 1;
