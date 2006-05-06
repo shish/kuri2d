@@ -9,4 +9,4 @@ flags = [
 	'-DVERSION=\\"0.9.0\\"', '-DENABLE_BINRELOC=1', 
 	'-Wall', '-ggdb']
 
-Program('bin/kuri2d', LIBS=libs, CCFLAGS=flags, source=files)
+Program('kuri2d', LIBS=libs, CCFLAGS=flags, source=files)

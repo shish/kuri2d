@@ -226,7 +226,7 @@ static int openFrame(Uint32 vidFlags) {
 	SDL_Surface *root;
 
 	SDL_WM_SetCaption("Kuri 2d", "Kuri 2d");
-	SDL_WM_SetIcon(IMG_Load(br_find_data("kuri.png")), NULL);
+	SDL_WM_SetIcon(IMG_Load(br_find_data("kuri2d.png")), NULL);
 	root = SDL_SetVideoMode(640, 480, 32, vidFlags);
 	if(root == NULL) {
 		printf("Unable to open window: %s\n", SDL_GetError());
