@@ -1,0 +1,12 @@
+files = Split("""
+	binreloc.c  editor.c  exit.c
+	init.c      kuri2d.c  logic.c
+	main.c      menu.c    SDL_shish.c
+	""")
+libs  = ['SDLmain', 'SDL_ttf', 'SDL_image', 'png', 'SDL']
+flags = [
+	'-I/usr/include/SDL/', 
+	'-DVERSION=\\"0.9.0\\"', '-DENABLE_BINRELOC=1', 
+	'-Wall', '-ggdb']
+
+Program('bin/kuri2d', LIBS=libs, CCFLAGS=flags, source=files)
