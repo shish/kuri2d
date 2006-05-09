@@ -9,4 +9,12 @@ flags = [
 	'-DVERSION=\\"0.9.0\\"', '-DENABLE_BINRELOC=1', 
 	'-Wall', '-ggdb']
 
-Program('kuri2d', LIBS=libs, CCFLAGS=flags, source=files)
+opts = Options('custom.py')
+opts.Add(PathOption('PREFIX', 'Install prefix', '/usr/local'))
+env = Environment(options = opts, LIBS=libs, CCFLAGS=flags)
+
+kuri2d = env.Program('kuri2d', files)
+
+env.Install('$PREFIX', kuri2d)
+env.Alias('install', '$PREFIX')
+
