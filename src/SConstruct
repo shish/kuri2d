@@ -5,16 +5,47 @@ files = Split("""
 	""")
 libs  = ['SDLmain', 'SDL_ttf', 'SDL_image', 'png', 'SDL']
 flags = [
-	'-I/usr/include/SDL/', 
-	'-DVERSION=\\"0.9.0\\"', '-DENABLE_BINRELOC=1', 
-	'-Wall', '-ggdb']
+	'-I/usr/include/SDL/', '-Wall', '-ggdb',
+	'-DVERSION=\\"0.9.0\\"', '-DENABLE_BINRELOC=1'
+	]
 
 opts = Options('custom.py')
 opts.Add(PathOption('PREFIX', 'Install prefix', '/usr/local'))
-env = Environment(options = opts, LIBS=libs, CCFLAGS=flags)
+env = Environment(options=opts, LIBS=libs, CCFLAGS=flags)
 
 kuri2d = env.Program('kuri2d', files)
 
-env.Install('$PREFIX', kuri2d)
+env.Install('$PREFIX/bin', kuri2d)
+
+env.Install('$PREFIX/share/kuri2d', '../share/kuri2d/kuri2d.desktop')
+env.Install('$PREFIX/share/kuri2d', '../share/kuri2d/hiscores.dat')
+env.Install('$PREFIX/share/kuri2d', '../share/kuri2d/kuri2d.png')
+env.Install('$PREFIX/share/kuri2d/maps', '../share/kuri2d/maps/map01.kmp')
+env.Install('$PREFIX/share/kuri2d/maps', '../share/kuri2d/maps/map02.kmp')
+env.Install('$PREFIX/share/kuri2d/maps', '../share/kuri2d/maps/map03.kmp')
+env.Install('$PREFIX/share/kuri2d/maps', '../share/kuri2d/maps/default.kmp')
+env.Install('$PREFIX/share/kuri2d/menu', '../share/kuri2d/menu/gamewon.png')
+env.Install('$PREFIX/share/kuri2d/menu', '../share/kuri2d/menu/scores.png')
+env.Install('$PREFIX/share/kuri2d/menu', '../share/kuri2d/menu/back.png')
+env.Install('$PREFIX/share/kuri2d/menu', '../share/kuri2d/menu/logo.png')
+env.Install('$PREFIX/share/kuri2d/menu', '../share/kuri2d/menu/edhelp.png')
+env.Install('$PREFIX/share/kuri2d/menu', '../share/kuri2d/menu/paused.png')
+env.Install('$PREFIX/share/kuri2d/menu', '../share/kuri2d/menu/menu.png')
+env.Install('$PREFIX/share/kuri2d/menu', '../share/kuri2d/menu/game.png')
+env.Install('$PREFIX/share/kuri2d/menu', '../share/kuri2d/menu/kuri.png')
+env.Install('$PREFIX/share/kuri2d/menu', '../share/kuri2d/menu/gamelost.png')
+env.Install('$PREFIX/share/kuri2d/fonts', '../share/kuri2d/fonts/arial.ttf')
+env.Install('$PREFIX/share/kuri2d/blocks', '../share/kuri2d/blocks/black.png')
+env.Install('$PREFIX/share/kuri2d/blocks', '../share/kuri2d/blocks/empty.png')
+env.Install('$PREFIX/share/kuri2d/blocks', '../share/kuri2d/blocks/green.png')
+env.Install('$PREFIX/share/kuri2d/blocks', '../share/kuri2d/blocks/dgreen.png')
+env.Install('$PREFIX/share/kuri2d/blocks', '../share/kuri2d/blocks/blue.png')
+env.Install('$PREFIX/share/kuri2d/blocks', '../share/kuri2d/blocks/block.png')
+env.Install('$PREFIX/share/kuri2d/blocks', '../share/kuri2d/blocks/red.png')
+env.Install('$PREFIX/share/kuri2d/marks', '../share/kuri2d/marks/marker.png')
+env.Install('$PREFIX/share/kuri2d/marks', '../share/kuri2d/marks/redt.png')
+env.Install('$PREFIX/share/kuri2d/marks', '../share/kuri2d/marks/greent.png')
+env.Install('$PREFIX/share/kuri2d/marks', '../share/kuri2d/marks/bluet.png')
+
 env.Alias('install', '$PREFIX')
 
