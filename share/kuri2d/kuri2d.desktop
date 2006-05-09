@@ -3,6 +3,6 @@ Name=Kuri2D
 Comment=A simple puzzle game
 Exec=kuri2d
 Icon=kuri2d.png
-Terminal=0
+Terminal=false
 Type=Application
 Categories=Application;Games;
