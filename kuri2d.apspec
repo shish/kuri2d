@@ -20,9 +20,8 @@ It's a game.
 [BuildPrepare]
 cd src
 scons
+scons PREFIX=$build_root install
 cd ..
-cp src/kuri2d bin/kuri2d
-cp -r bin share $build_root
 
 [BuildUnprepare]
 
