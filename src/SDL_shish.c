@@ -1,17 +1,32 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <png.h>
-#include <SDL/SDL.h>
 #include <sys/stat.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include "SDL_shish.h"
 
-static SDL_Surface *rootSurface;
-static SDL_Surface *currentSurface;
-Uint32 currentColor = 0xFFFF7700;
+/* ======================================================= */
 
-void refresh() {
-    (void)SDL_Flip(rootSurface);
+SDL_Window* window;
+SDL_Renderer* renderer;
+
+int SDL_ShishInit() {
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL: %s", SDL_GetError());
+        return 0;
+    }
+    (void)atexit(SDL_Quit);
+
+    SDL_CreateWindowAndRenderer(640, 480, 0, &window, &renderer);
+    if(!renderer || !window) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize window/renderer: %s", SDL_GetError());
+        return 0;
+    }
+
+    SDL_SetWindowIcon(window, IMG_Load("data/kuri2d.png"));
+    SDL_SetWindowTitle(window, "Kuri 2D");
+
+    return 1;
 }
 
 void screenshot(char *name) {
@@ -22,31 +37,25 @@ void screenshot(char *name) {
 		sprintf(filename, "%s_%04i.bmp", name, n);
 		if(stat(filename, &buffer) == -1) break;
 	}
-	SDL_SaveBMP(SDL_GetVideoSurface(), filename);
+	// TODO: SDL_SaveBMP(rootSurface, filename);
 }
 
-void setCurrentSurface(SDL_Surface *surf) {
-    if(surf == NULL) {
-        printf("Warning: surface is null\n");
-        return;
-    }
-    currentSurface = surf;
+void toggleFullscreen(SDL_Window* window) {
+	Uint32 fullscreenFlag = SDL_WINDOW_FULLSCREEN;
+	Uint32 isFullscreen = SDL_GetWindowFlags(window) & fullscreenFlag;
+	SDL_SetWindowFullscreen(window, isFullscreen ? 0 : fullscreenFlag);
+	SDL_ShowCursor(isFullscreen);
+
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");  // make the scaled rendering look smoother.
+    SDL_RenderSetLogicalSize(renderer, 640, 480);
 }
 
-SDL_Surface *getCurrentSurface() {
-    return currentSurface;
-}
-
-void setRootSurface(SDL_Surface *surf) {
-    if(surf == NULL) {
-        printf("Warning: trying to set rootSurf to null!\n");
-        return;
-    }
-    rootSurface = surf;
-}
-
-SDL_Surface *getRootSurface() {
-    return rootSurface;
+void drawString(TTF_Font *font, char *text, SDL_Color color, int x, int y) {
+    SDL_Surface *surface = TTF_RenderText_Blended(font, text, color);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    drawTexture(texture, x, y);
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
 }
 
 void fillRect(int x, int y, int w, int h, int c) {
@@ -55,48 +64,33 @@ void fillRect(int x, int y, int w, int h, int c) {
     rect.y = y;
     rect.w = w;
     rect.h = h;
-    (void)SDL_FillRect(currentSurface, &rect, c);
+    SDL_SetRenderDrawColor(renderer, c<<24, c<<16, c<<8, c<<0);
+    SDL_RenderFillRect(renderer, &rect);
 }
 
-void lockScreen() {
-	if(SDL_MUSTLOCK(rootSurface)) {
-		if(SDL_LockSurface(rootSurface) < 0) return;
-	}
+SDL_Texture *loadTexture(const char *name) {
+    SDL_Surface *surface = IMG_Load(name);
+    if(!surface) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't load image %s: %s", name, SDL_GetError());
+        return 0;
+    }
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if(!texture) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create texture: %s", SDL_GetError());
+        return 0;
+    }
+
+    SDL_FreeSurface(surface);
+    return texture;
 }
 
-void unlockScreen() {
-	if(SDL_MUSTLOCK(rootSurface)) {
-		SDL_UnlockSurface(rootSurface);
-	}
-}
-
-void drawImage(SDL_Surface *img, int x, int y) {
+void drawTexture(SDL_Texture *img, int x, int y) {
 	SDL_Rect dest;
 	dest.x = x;
 	dest.y = y;
-	(void)SDL_BlitSurface(img, NULL, currentSurface, &dest);
-}
-
-void drawImageClipped(SDL_Surface *img, int x, int y,
-		int cx, int cy, int cw, int ch) {
-	SDL_Rect clip, dest;
-	clip.x = cx;
-	clip.y = cy;
-	clip.w = cw;
-	clip.h = ch;
-	dest.x = x;
-	dest.y = y;
-	(void)SDL_BlitSurface(img, &clip, currentSurface, &dest);
-}
-
-void drawImageAlpha(SDL_Surface *img, int x, int y, Uint8 a) {
-	SDL_Rect dest;
-	if(img == NULL) return;
-	img->format->alpha = a;
-	dest.x = x;
-	dest.y = y;
-	(void)SDL_BlitSurface(img, NULL, currentSurface, &dest);
-	img->format->alpha = 0xFF;
+    SDL_QueryTexture(img, NULL, NULL, &dest.w, &dest.h);
+	SDL_RenderCopy(renderer, img, NULL, &dest);
 }
 
 void playSound(/*@ unused @*/ int channel, /*@ unused @*/ BasicSound* data) {

@@ -12,17 +12,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "SDL.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include "kuri2d.h"
-#include "binreloc.h"
-#include "SDL_shish.h"
-#include "SDL_ttf.h"
 
 int doExit() {
 	int i;
 	FILE *fp;
 
-	if((fp = fopen(br_find_data("hiscores.dat"), "wb+"))) {
+	if((fp = fopen("hiscores.dat", "wb+"))) {
 		(void)fwrite(hiscores, sizeof(hiscores), 1, fp);
 		(void)fclose(fp);
 	}
@@ -32,23 +30,22 @@ int doExit() {
 
 	for(i=0; i<BG_COUNT; i++) {
 		if(backgrounds[i] != NULL) {
-			SDL_FreeSurface(backgrounds[i]);
+			SDL_DestroyTexture(backgrounds[i]);
 		}
 	}
 
 	for(i=0; i<BT_COUNT; i++) {
 		if(blockImages[i] != NULL) {
-			SDL_FreeSurface(blockImages[i]);
+			SDL_DestroyTexture(blockImages[i]);
 		}
 	}
 	
 	for(i=0; i<TEXT_COUNT; i++) {
 		if(texts[i] != NULL) {
-			SDL_FreeSurface(texts[i]);
+			SDL_DestroyTexture(texts[i]);
 		}
 	}
 
-	/*@ -compdestroy -unqualifiedtrans @*/
 	/* splint doesn't pick up FreeWAV as free()ing memory */
 	/* FIXME: Sound 
 	for(i=0; i<SND_COUNT; i++) {
@@ -60,7 +57,6 @@ int doExit() {
 		}
 	}
 	*/
-	/*@ =compdestroy @*/
 
 	for(i=0; i<FONT_COUNT; i++) {
 		if(fonts[i] != NULL) {
@@ -74,10 +70,8 @@ int doExit() {
 	free(state);
 	free(startState);
 	free(level);
-	/*@ =unqualifiedtrans @*/
 
 	SDL_Quit();
 	TTF_Quit();
 	return 1;
 }
-

@@ -14,68 +14,60 @@
 #include <stdlib.h>
 #include <string.h>
 #include "kuri2d.h"
-#include "binreloc.h"
 #include "SDL_shish.h"
 
 static void setBlock(blockType type);
 static void renameMap(void);
 static char *mapSig = "KM01";
 
-int doEditor(char *fname) {
+void initEditor(char *fname) {
 	printf("Kuri2d Editor initing...\n");
 
 	setOffsets();
-	drawImage(backgrounds[BG_BACK], 0, 0);
-	drawImage(backgrounds[BG_GAME], 6, 6);
-	drawImage(backgrounds[BG_LOGO], 300, 14);
 
 	/* set the level's name, then reload it */
-	/*@-mayaliasunique@*/
 	strcpy(level->name, fname);
-	/*@=mayaliasunique@*/
 	if(!readMap(level)) {
 		printf("Load of map %s failed\n", fname);
 	}
+}
 
-	/*@-usedef@*/
-	while(hasQuit == 0) {
-		SDL_Event event;
-		while(SDL_PollEvent(&event)) {
-			if(event.type == SDL_QUIT) {hasQuit = 1;}
-			if(event.type == SDL_KEYDOWN) {
-				switch (event.key.keysym.sym) {
-					case SDLK_ESCAPE: hasQuit = 1; break;
-					case SDLK_UP:     py--; break;
-					case SDLK_DOWN:   py++; break;
-					case SDLK_LEFT:   px--; break;
-					case SDLK_RIGHT:  px++; break;
-					case SDLK_n: renameMap(); break;
-					case SDLK_d: setBlock(BT_NULL);      break;
-					case SDLK_p: setBlock(BT_BLOCK);     break;
-					case SDLK_b: setBlock(BT_BOMB);      break;
-					case SDLK_f: setBlock(BT_FORBIDDEN); break;
-					case SDLK_KP0:      level->fieldWidth--;  break;
-					case SDLK_KP_ENTER: level->fieldWidth++;  break;
-					case SDLK_KP_MINUS: level->fieldHeight--; break;
-					case SDLK_KP_PLUS:  level->fieldHeight++; break;
-					case SDLK_r: (void)readMap(level);  break;
-					case SDLK_w: (void)writeMap(level); break;
-					default: break;
-				}
+void doEditor() {
+	SDL_Event event;
+	while(SDL_PollEvent(&event)) {
+		if(event.type == SDL_QUIT) {hasQuit = K2D_TRUE;}
+		if(event.type == SDL_KEYDOWN) {
+			switch (event.key.keysym.sym) {
+				case SDLK_ESCAPE: hasQuit = K2D_TRUE; break;
+				case SDLK_UP:     state->py--; break;
+				case SDLK_DOWN:   state->py++; break;
+				case SDLK_LEFT:   state->px--; break;
+				case SDLK_RIGHT:  state->px++; break;
+				case SDLK_n: renameMap(); break;
+				case SDLK_d: setBlock(BT_NULL);      break;
+				case SDLK_p: setBlock(BT_BLOCK);     break;
+				case SDLK_b: setBlock(BT_BOMB);      break;
+				case SDLK_f: setBlock(BT_FORBIDDEN); break;
+				case SDLK_KP_0:     level->fieldWidth--;  break;
+				case SDLK_KP_ENTER: level->fieldWidth++;  break;
+				case SDLK_KP_MINUS: level->fieldHeight--; break;
+				case SDLK_KP_PLUS:  level->fieldHeight++; break;
+				case SDLK_r: (void)readMap(level);  break;
+				case SDLK_w: (void)writeMap(level); break;
+				default: break;
 			}
 		}
-		drawEdit();
-		
-		SDL_Delay(1000/10);
 	}
-	/*@=usedef@*/
 
-	return 1;
+	drawTexture(backgrounds[BG_BACK], 0, 0);
+	drawTexture(backgrounds[BG_GAME], 6, 6);
+	drawTexture(backgrounds[BG_LOGO], 300, 14);
+	drawEdit();
 }
 
 static void setBlock(blockType type) {
-	if(px < level->fieldWidth && py < level->fieldHeight) {
-		level->blocks[px][py] = type;
+	if(state->px < level->fieldWidth && state->py < level->fieldHeight) {
+		level->blocks[state->px][state->py] = type;
 	}
 }
 
@@ -93,9 +85,9 @@ int readMap(KuriLevel *klevel) {
 	
 	snprintf(fname, FILENAME_MAX, "maps/%s.kmp", klevel->name);
 
-	mapfile = fopen(br_find_data(fname), "rb");
+	mapfile = fopen(fname, "rb");
 	if(mapfile) {
-		printf("Reading file '%s'\n", br_find_data(fname));
+		printf("Reading file '%s'\n", fname);
 		(void)fread(klevel, sizeof(KuriLevel), 1, mapfile);
 		(void)fclose(mapfile);
 		if(strncmp(klevel->sig, mapSig, 4) != 0) {
@@ -104,7 +96,7 @@ int readMap(KuriLevel *klevel) {
 		}
 	}
 	else {
-		printf("File '%s' not found\n", br_find_data(fname));
+		printf("File '%s' not found\n", fname);
 	}
 	free(fname);
 
@@ -123,17 +115,16 @@ int writeMap(KuriLevel *klevel) {
 	}
 	strcpy(klevel->sig, mapSig); /* set the sig to the current version */
 	klevel->inited = (Uint8)1;   /* this should be set for all maps */
-	printf("Writing file '%s'\n", br_find_data(fname));
+	printf("Writing file '%s'\n", fname);
 
-	mapfile = fopen(br_find_data(fname), "wb+");
+	mapfile = fopen(fname, "wb+");
 	if(mapfile) {
 		(void)fwrite(klevel, sizeof(KuriLevel), 1, mapfile);
 		(void)fclose(mapfile);
 	}
 	else {
-		printf("File '%s' could not be written to\n", br_find_data(fname));
+		printf("File '%s' could not be written to\n", fname);
 		return 0;
 	}
 	return 1;
 }
-

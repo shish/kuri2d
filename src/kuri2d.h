@@ -13,9 +13,11 @@
 #ifndef _KURI2D_H_
 #define _KURI2D_H_
 
-#include "SDL.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include "SDL_shish.h"
-#include "SDL_ttf.h"
+
+typedef enum { K2D_FALSE = 0, K2D_TRUE = 1 } k2d_boolean;
 
 /*
 =============
@@ -24,11 +26,19 @@ top level
 */
 #define MAX_LEVELS 128
 #define MAX_HISCORES 5
+#define NAME_LEN 8
+#define LEVEL_LEN 32
 
-int doInit(Uint32 vidFlags, int doWipe);
-int doKuri2d();
-int doEditor(char *fname);
+int doInit(Uint8 fullscreen, int doWipe);
 int doExit();
+
+typedef enum screen {
+    SCR_MENU,
+    SCR_GAME,
+    SCR_WIN,
+    SCR_LOSE,
+	SCR_EDIT,
+} screen;
 
 typedef enum background {
 	BG_BACK,
@@ -98,9 +108,6 @@ typedef enum texts {
 	TEXT_PRESS,
 	TEXT_EDHELP,
 	TEXT_PRECOUNT,
-	/* dynamic texts */
-	DTEX_LEVEL,
-	DTEX_TARGET,
 	TEXT_COUNT
 } textId;
 
@@ -111,50 +118,63 @@ typedef struct KuriLevel {
 	Uint8 fieldWidth, fieldHeight; /* size of the playing field */
 	blockType blocks[16][64];      /* blocks outside the field = null */
 	blockType field[16][64];	   /* only set for special levels */
-	Uint8 px, py;                  /* where the player starts */
 	Uint8 target, time;            /* block paces / seconds to beat */
-	char  reserved[4096-2203];     /* pad to 4096 for compatibility */
 } KuriLevel;
 
 typedef struct HiScore {
-	char name[8];
+	char name[NAME_LEN];
 	int score, level;
 } HiScore;
 
 typedef struct State {
-	char name[8];
+    int screen;
+    int frame;
+	char name[NAME_LEN];
 	int score, lives, level;
+    Uint8 px, py;
 } State;
+
 
 /*
 =============
 main.c
 =============
 */
-extern SDL_Surface *backgrounds[BG_COUNT];
-extern SDL_Surface *blockImages[BT_COUNT];
-extern SDL_Surface *texts[TEXT_COUNT];
+void setScreen(screen screen);
+
+/*
+=============
+game.c
+=============
+*/
+extern SDL_Texture *backgrounds[BG_COUNT];
+extern SDL_Texture *blockImages[BT_COUNT];
+extern SDL_Texture *texts[TEXT_COUNT];
 extern BasicSound  *sounds[SND_COUNT];
 extern TTF_Font    *fonts[FONT_COUNT];
 
+void initGame(void);
+void doGame(void);
 void drawGame(void);
 void drawEdit(void);
 void setOffsets(void);
+void kill(void);
 
-extern HiScore    hiscores[MAX_HISCORES];
-extern State     *state, *startState;
-extern SDL_Color  black, white;
-extern SDL_bool   inGame, hasWon, hasLost, hasQuit;
-extern Uint8      px, py;	/* player location */
-extern KuriLevel  levels[MAX_LEVELS];
-extern KuriLevel *level;
-extern Uint32     frame;
+extern HiScore     hiscores[MAX_HISCORES];
+extern State      *state, *startState;
+extern SDL_Color   black, white;
+extern k2d_boolean hasQuit;
+extern KuriLevel   levels[MAX_LEVELS];
+extern KuriLevel  *level;
 
 /*
 =============
 editor.c
 =============
 */
+void initEditor();
+void doEditor();
+
 int readMap(KuriLevel *level);
 int writeMap(KuriLevel *level);
 
@@ -163,7 +183,6 @@ int writeMap(KuriLevel *level);
 logic.c
 =============
 */
-int  isInBounds(Uint8 x, Uint8 y);
 void tryUp(void);
 void tryDown(void);
 void tryLeft(void);
@@ -172,19 +191,33 @@ void doTrap(void);
 void doBombs(void);
 void eatBlocks(void);
 void slide(void);
-void setField(void);
 void resetField(void);
 int  isStageClear(void);
-void addHiScore(char *name, int score, int level);
 
 /*
 =============
 menu.c
 =============
 */
+void initMenu(void);
 void doMenu(void);
-void doGameWon(void);
-void doGameLost(void);
+
+/*
+=============
+win.c
+=============
+*/
+void initWin(void);
+void doWin(void);
+
+/*
+=============
+lose.c
+=============
+*/
+void initLose(void);
+void doLose(void);
+
+void addHiScore(char *name, int score, int level);
 
 #endif /* _KURI2D_H_ */
-

@@ -11,21 +11,18 @@
  */
 
 #include <stdlib.h>
-#include <string.h>
 #include "kuri2d.h"
-#include "SDL_shish.h"
 
-static void     trySet   (Uint8 x, Uint8 y);
-static void     detonate (Uint8 x, Uint8 y);
-static SDL_bool eatBlock (Uint8 x, Uint8 y);
-
-int isInBounds(Uint8 x, Uint8 y) {
-	return (x < level->fieldWidth && y < level->fieldHeight);
-}
+static void trySet   (Uint8 x, Uint8 y);
+static void detonate (Uint8 x, Uint8 y);
+static k2d_boolean eatBlock (Uint8 x, Uint8 y);
 
 /** (private for tryXXX)
  * to see if the player is allowed to move there
  */
+static int isInBounds(Uint8 x, Uint8 y) {
+	return (x < level->fieldWidth && y < level->fieldHeight);
+}
 static int isFree(Uint8 x, Uint8 y) {
 	return (isInBounds(x, y) &&
 			(level->field[x][y] == BT_EMPTY ||
@@ -34,11 +31,17 @@ static int isFree(Uint8 x, Uint8 y) {
 			level->field[x][y] == BT_TRIGGERED) &&
 			level->blocks[x][y] == BT_NULL);
 }
+static void tryMove(int dx, int dy) {
+    if(isInBounds(state->px, state->py) && isFree(state->px + dx, state->py + dy)) {
+        state->px += dx;
+        state->py += dy;
+    }
+}
 
-void tryUp()    {if(isInBounds(px, py) && isFree(px, py - 1)) py--;}
-void tryDown()  {if(isInBounds(px, py) && isFree(px, py + 1)) py++;}
-void tryLeft()  {if(isInBounds(px, py) && isFree(px - 1, py)) px--;}
-void tryRight() {if(isInBounds(px, py) && isFree(px + 1, py)) px++;}
+void tryUp()    {tryMove(0, -1);}
+void tryDown()  {tryMove(0, 1);}
+void tryLeft()  {tryMove(-1, 0);}
+void tryRight() {tryMove(1, 0);}
 
 
 /**
@@ -57,12 +60,12 @@ void doTrap() {
 		}
 	}
 
-	level->field[px][py] = BT_TRAP;
+	level->field[state->px][state->py] = BT_TRAP;
 }
 
 
 /** (private to detonate)
- * if possbile, sets a square to triggered
+ * if possible, sets a square to triggered
  * used to stop things like field[-1][5] = BT_TRIGGERED;
  * checking for BT_BOMB stops bombs overwriting eachother
  * the same for BT_TRAP
@@ -144,9 +147,9 @@ static void slideBlock(Uint8 x, Uint8 y) {
 	level->blocks[x][y] = BT_NULL;
 	y++; /* set the current block as one block lower */
 	if(level->blocks[x][y] != BT_NULL) {
-		if(x == px && y == py) {
+		if(x == state->px && y == state->py) {
 			/* got crushed, game over */
-			hasLost = 1;
+			setScreen(SCR_LOSE);
 			playSound(CH_END, sounds[SND_DIE]);
 		}
 	}
@@ -166,9 +169,8 @@ void slide() {
 	 * will shrink, this checks to see if the player
 	 * is over the edge
 	 */
-	if(py >= level->fieldHeight) {
-		hasLost = 1;
-		playSound(CH_END, sounds[SND_DIE]);
+	if(state->py >= level->fieldHeight) {
+		kill();
 	}
 
 	/*
@@ -201,7 +203,7 @@ void slide() {
  */
 void eatBlocks() {
 	Uint8 x, y;
-	SDL_bool set = 0;
+	k2d_boolean set = K2D_FALSE;
 
 	for (y = 0; y < level->fieldHeight; y++) {
 		for (x = 0; x < level->fieldWidth; x++) {
@@ -215,8 +217,8 @@ void eatBlocks() {
 /**
  * if a block is over a trap, eat the block
  */
-static SDL_bool eatBlock(Uint8 x, Uint8 y) {
-	SDL_bool set = SDL_TRUE;
+static k2d_boolean eatBlock(Uint8 x, Uint8 y) {
+	k2d_boolean set = K2D_TRUE;
 
 	if (level->blocks[x][y] != BT_NULL) {
 		if (level->field[x][y] == BT_TRIGGERED) {
@@ -235,13 +237,13 @@ static SDL_bool eatBlock(Uint8 x, Uint8 y) {
 					level->field[x][y] = BT_EMPTY;
 					break;
 				default:
-					set = SDL_FALSE;
+					set = K2D_FALSE;
 					break;
 			}
 			level->blocks[x][y] = BT_NULL;
 		}
 		else {
-			set = SDL_FALSE;
+			set = K2D_FALSE;
 		}
 	}
 
@@ -277,24 +279,3 @@ int isStageClear() {
 
 	return 1;
 }
-
-
-/**
- * Figure out if the player gets a place in the charts, if they do, add them
- */
-/*@-mayaliasunique@*/
-void addHiScore(char *name, int score, int level) {
-	int i, j;
-	
-	for(i=0; i<MAX_HISCORES; i++) {
-		if(score >= hiscores[i].score) {
-			printf("Player got a hi-score! (%s, %i, %i) Inserting into position %i\n", name, score, level, i);
-			for(j=MAX_HISCORES-1; j>i; j--) memcpy(&hiscores[j], &hiscores[j-1], sizeof(HiScore));
-			strncpy(hiscores[i].name, name, 8);
-			hiscores[i].score = score;
-			hiscores[i].level = level;
-			break;
-		}
-	}
-}
-/*@=mayaliasunique@*/

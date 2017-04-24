@@ -10,9 +10,9 @@
  *
  */
 
-#include "SDL.h"
 #include <math.h>
 #include <stdio.h>
+#include <SDL2/SDL.h>
 #include "kuri2d.h"
 
 /* Menu Instructions */
@@ -21,9 +21,13 @@ static char *mins[] = {
 	"T", "set / activate trap",
 	"B", "detonate bombs",
 	"Q", "restart level",
+    "P", "toggle pause",
+#ifdef __EMSCRIPTEN__
+    "", "",
+#else
 	"Esc", "leave game",
-	"P", "toggle pause",
-	" ", " ",
+#endif
+	"", "",
 	" ", "block; trap for points",
 	" ", "bomb; trap and detonate",
 	" ", "forbidden; don't trap!",
@@ -32,201 +36,54 @@ static char *mins[] = {
 
 
 /**
- * show the "menu" bitmap
- * wait 250ms
- * clear event stack
- * wait for an event
+ *
  */
+void initMenu() {
+    state->score = 0;
+    state->lives = 3;
+    state->level = 0;
+}
 void doMenu() {
-	int half = 640 / 2 - 16;
-	int xo2, minsy = 96, i; /* x offset 2, menu instruction y offset, int */
-	SDL_Event event;
-	SDL_Surface *hitex, *t1, *t2, *t3;
-	char histring[64];
-	
-	drawImage(backgrounds[BG_BACK], 0, 0);
-	drawImage(backgrounds[BG_MENU], 0, 96);
-	for(i=0; mins[i]; i+=2, minsy += 32) {
-		drawImage(t1 = TTF_RenderText_Blended(fonts[FONT_MINS], mins[i],   black), 37,  minsy);
-		drawImage(t2 = TTF_RenderText_Blended(fonts[FONT_MINS], "-",       black), 110, minsy);
-		drawImage(t3 = TTF_RenderText_Blended(fonts[FONT_MINS], mins[i+1], black), 125, minsy);
-		SDL_FreeSurface(t1);
-		SDL_FreeSurface(t2);
-		SDL_FreeSurface(t3);
-	}
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT) {hasQuit = K2D_TRUE;}
+        if (event.type == SDL_KEYDOWN) {
+            switch (event.key.keysym.sym) {
+                case SDLK_q:
+                case SDLK_ESCAPE:
+                    hasQuit = K2D_TRUE;
+                    break;
+                default:
+                    setScreen(SCR_GAME);
+                    break;
+            }
+        }
+    }
 
-	minsy = 180;
-	for(i=0; i<MAX_HISCORES; i++, minsy += 32) {
-		if(hiscores[i].score > 0) {
-			sprintf(histring, "%s, %i (%i)", hiscores[i].name, hiscores[i].score, hiscores[i].level);
-			drawImage(hitex = TTF_RenderText_Blended(fonts[FONT_HISCORE], histring, black), 400, minsy);
-			SDL_FreeSurface(hitex);
-		}
-	}
+    int half = 640 / 2 - 16;
+    int xo2, minsy = 100, i; /* x offset 2, menu instruction y offset, int */
+    char histring[64];
 
-	/* drawImage(texts[TEXT_PRESS], 170, 435); */
-	drawImage(backgrounds[BG_LOGO], 198, 14);
-	drawImage(blockImages[BT_BLOCK], half, 480-32-8);
-	refresh();
-	SDL_Delay(250);
-	while (SDL_PollEvent(&event));
+    drawTexture(backgrounds[BG_BACK], 0, 0);
+    drawTexture(backgrounds[BG_MENU], 0, 96);
+    drawTexture(backgrounds[BG_LOGO], 198, 14);
 
-	inGame = 1;
-	while (inGame && !hasQuit) {
-		frame++;
+    for(i=0; mins[i]; i+=2, minsy += 32) {
+        drawString(fonts[FONT_MINS], mins[i], black, 37, minsy);
+        if(strlen(mins[i]) > 0) {
+            drawString(fonts[FONT_MINS], "-", black, 110, minsy);
+        }
+        drawString(fonts[FONT_MINS], mins[i + 1], black, 125, minsy);
+    }
 
-		while (SDL_PollEvent(&event)) {
-			/*@ -usedef @*/
-			if (event.type == SDL_QUIT) {hasQuit = 1;}
-			if (event.type == SDL_KEYDOWN) {
-				switch (event.key.keysym.sym) {
-					case SDLK_q:
-					case SDLK_ESCAPE:
-						hasQuit = 1;
-						break;
-					default:
-						inGame = 0;
-						break;
-				}
-			}
-			/*@ =usedef @*/
-		}
+    minsy = 180;
+    for(i=0; i<MAX_HISCORES; i++, minsy += 32) {
+        if(hiscores[i].score > 0) {
+            sprintf(histring, "%s, %i (%i)", hiscores[i].name, hiscores[i].score, hiscores[i].level);
+            drawString(fonts[FONT_HISCORE], histring, black, 400, minsy);
+        }
+    }
 
-		/* FIXME : Bounce some blocks around */
-		xo2 = (int)(half+(float)sin((frame/30.0)*(3.1415/2.0))*(half-16));
-
-		drawImageClipped(backgrounds[BG_MENU], xo2-16, 432, xo2-16, 336, 64, 48);
-		/* drawImage(texts[TEXT_PRESS], 170, 438); */
-		drawImage(blockImages[BT_BLOCK], xo2, 480-32-8);
-		refresh();
-		SDL_Delay(1000 / 30);
-	}
-}
-
-
-/**
- * show the "you win" bitmap
- * wait 250ms
- * clear event stack
- * wait for an event
- */
-void doGameWon() {
-	SDL_Event event;
-
-	resetField();
-
-	drawImage(backgrounds[BG_BACK], 0, 0);
-	drawImage(backgrounds[BG_WIN], 32, 192);
-	refresh();
-	SDL_Delay(250);
-	while (SDL_PollEvent(&event));
-
-	inGame = 1;
-	frame = 0;
-	while (inGame && !hasQuit) {
-		frame++;
-		while (SDL_PollEvent(&event)) {
-			/*@ -usedef @*/
-			if (event.type == SDL_QUIT) {hasQuit = 1;}
-			if (event.type == SDL_KEYDOWN) {
-				switch (event.key.keysym.sym) {
-					case SDLK_ESCAPE: hasQuit = 1; break;
-					default: inGame = 0; break;
-				}
-			}
-			/*@ =usedef @*/
-		}
-
-		/* FIXME : Bounce some blocks around */
-		refresh();
-		SDL_Delay(1000 / 10);
-
-		if(frame == 100) break;
-	}
-}
-
-
-/**
- * show the "game over" bitmap
- * wait 250ms
- * clear event stack
- * wait for an event
- */
-void doGameLost() {
-	SDL_Event event;
-	SDL_Surface *hiMsg;
-	char hiText[64];
-	char name[64] = "";
-	int namePos = 0, hiPos = 0, needUpdate = 0;
-
-	resetField();
-
-	/* check for hiscore */
-	for(hiPos=0; hiPos<MAX_HISCORES; hiPos++) {
-		if(state->score > hiscores[hiPos].score) {
-			needUpdate = 1;
-			break;
-		}
-	}
-
-	drawImage(backgrounds[BG_BACK], 0, 0);
-	drawImage(backgrounds[BG_LOSE], 32, 192);
-
-	/* clear events */
-	while (SDL_PollEvent(&event));
-
-	inGame = 1;
-	frame = 0;
-	while (inGame && !hasQuit) {
-		frame++;
-		while (SDL_PollEvent(&event)) {
-			/*@ -usedef @*/
-			if(event.type == SDL_QUIT) {hasQuit = 1;}
-			if(event.type == SDL_KEYDOWN) {
-				if(hiPos < MAX_HISCORES) {
-					if(event.key.keysym.sym >= SDLK_a && event.key.keysym.sym <= SDLK_z) {
-						if(namePos < 8) {
-							name[namePos++] = event.key.keysym.sym;
-							name[namePos] = 0;
-							needUpdate = 1;
-						}
-					}
-					else {
-						switch (event.key.keysym.sym) {
-							case SDLK_RETURN:
-								addHiScore(name, state->score, state->level);
-								inGame = 0;
-								break;
-							case SDLK_BACKSPACE:
-								if(namePos > 0) name[--namePos] = 0;
-								needUpdate = 1;
-								break;
-							default:
-								break;
-						}
-					}
-				}
-				else if(event.type == SDL_KEYDOWN) {
-					inGame = 0;
-				}
-			}
-			/*@ =usedef @*/
-		}
-
-		if(hiPos < MAX_HISCORES && needUpdate) {
-			drawImage(backgrounds[BG_BACK], 0, 0);
-			drawImage(backgrounds[BG_LOSE], 32, 192);
-			sprintf(hiText, "New Hiscore: %i points!", state->score);
-			drawImage(hiMsg = TTF_RenderText_Blended(fonts[FONT_SCORE], hiText, black), 100, 300);
-			SDL_FreeSurface(hiMsg);
-			sprintf(hiText, "Enter Name: %s", name);
-			drawImage(hiMsg = TTF_RenderText_Blended(fonts[FONT_SCORE], hiText, black), 100, 332);
-			SDL_FreeSurface(hiMsg);
-			needUpdate = 0;
-		}
-
-		/* FIXME : Bounce some blocks around */
-		refresh();
-		SDL_Delay(1000 / 10);
-	}
+    xo2 = (int)(half+(float)sin((state->frame/30.0)*(3.1415/2.0))*(half-16));
+    drawTexture(blockImages[BT_BLOCK], xo2, 480 - 32 - 8);
 }
