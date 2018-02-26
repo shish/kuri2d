@@ -24,3 +24,6 @@ dist: kuri2d
 
 clean:
 	rm -f kuri2d*
+
+publish:
+	scp kuri2d.* violet.shishnet.org:/data/sites/code.shishnet.org/htdocs/kuri2d/
